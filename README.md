@@ -1,6 +1,6 @@
 [![EO principles respected here](https://www.elegantobjects.org/badge.svg)](https://www.elegantobjects.org)
 
-[![Build](https://github.com/ArtemGet/tagrelease/actions/workflows/maven.yaml/badge.svg)](https://github.com/ArtemGet/entrys/actions/workflows/maven.yaml)
+[![Build](https://github.com/ArtemGet/tagrelease/actions/workflows/maven.yaml/badge.svg)](https://github.com/ArtemGet/tagrelease/actions/workflows/maven.yaml)
 
 # Overview
 CI/CD telegram bot integrated with gitlab.
