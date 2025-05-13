@@ -56,9 +56,7 @@ public final class MatchAdmin implements Predicate<Wrap<Update>> {
     public boolean test(final Wrap<Update> update) {
         try {
             return this.admins.value()
-                .contains(
-                    update.src().getMessage().getFrom().getId().toString()
-                );
+                .contains(update.src().getMessage().getFrom().getId().toString());
         } catch (final EntryException exception) {
             throw new EntryExceptionUnchecked(exception);
         }

@@ -37,7 +37,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
  *
  * @since 0.1.0
  */
-public class MatchChats implements Predicate<Wrap<Update>> {
+public final class MatchChats implements Predicate<Wrap<Update>> {
     /**
      * Chat ids.
      */
@@ -53,9 +53,10 @@ public class MatchChats implements Predicate<Wrap<Update>> {
     }
 
     @Override
-    public boolean test(final Wrap<Update> updateWrap) {
+    public boolean test(final Wrap<Update> update) {
         try {
-            return this.chats.value().contains(updateWrap.src().getMessage().getChatId().toString());
+            return this.chats.value()
+                .contains(update.src().getMessage().getChatId().toString());
         } catch (final EntryException exception) {
             throw new EntryExceptionUnchecked(exception);
         }
