@@ -26,7 +26,12 @@ package io.github.artemget.tagrelease.domain;
 
 import java.util.List;
 
-public class ServicesGitlab implements Services {
+/**
+ * Applications from gitlab.
+ *
+ * @since 0.1.0
+ */
+public final class ServicesGitlab implements Services {
     @Override
     public List<Service> services() {
         throw new UnsupportedOperationException();
