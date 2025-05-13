@@ -24,9 +24,24 @@
 
 package io.github.artemget.tagrelease.domain;
 
+/**
+ * Server.
+ *
+ * @since 0.1.0
+ */
 public interface Stand {
+    /**
+     * Returns server name.
+     *
+     * @return Name
+     */
     String name();
 
+    /**
+     * Returns server's services.
+     *
+     * @return Services
+     */
     Services services();
 
     final class Text {
@@ -45,7 +60,7 @@ public interface Stand {
                         %s
                     """,
                 this.stand.name(),
-                new Services.Text(this.stand.services())
+                new Services.Printed(this.stand.services())
             );
         }
     }
