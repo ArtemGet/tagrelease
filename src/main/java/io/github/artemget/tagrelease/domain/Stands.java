@@ -26,6 +26,7 @@ package io.github.artemget.tagrelease.domain;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.cactoos.Text;
 
 /**
  * Servers.
@@ -48,15 +49,27 @@ public interface Stands {
      */
     Stand stand(final String name);
 
-    final class Text {
+    /**
+     * Printed servers.
+     *
+     * @since 0.1.0
+     */
+    final class Printed implements Text {
+        /**
+         * Stands.
+         */
         private final Stands stands;
 
-        public Text(final Stands stands) {
+        /**
+         * Main ctor.
+         * @param stands Stands
+         */
+        public Printed(final Stands stands) {
             this.stands = stands;
         }
 
         @Override
-        public String toString() {
+        public String asString() {
             return stands.stands().stream()
                 .map(st -> new Stand.Printed(st).toString())
                 .collect(Collectors.joining());
