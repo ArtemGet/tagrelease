@@ -27,10 +27,26 @@ package io.github.artemget.tagrelease.domain;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Servers.
+ *
+ * @since 0.1.0
+ */
 public interface Stands {
+    /**
+     * Returns available servers.
+     *
+     * @return Servers
+     */
     List<Stand> stands();
 
-    Stand stand(String name);
+    /**
+     * Returns server by it's name.
+     *
+     * @param name Name
+     * @return Server
+     */
+    Stand stand(final String name);
 
     final class Text {
         private final Stands stands;
@@ -42,7 +58,7 @@ public interface Stands {
         @Override
         public String toString() {
             return stands.stands().stream()
-                .map(st -> new Stand.Text(st).toString())
+                .map(st -> new Stand.Printed(st).toString())
                 .collect(Collectors.joining());
         }
     }
