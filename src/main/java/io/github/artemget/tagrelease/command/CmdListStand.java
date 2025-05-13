@@ -62,7 +62,7 @@ public class CmdListStand implements Cmd<Update, AbsSender> {
         try {
             message = new SendMessage(
                 update.getMessage().getChatId().toString(),
-                new Stand.Text(
+                new Stand.Printed(
                     this.stands.stand(
                         new Trimmed(
                             new Replaced(

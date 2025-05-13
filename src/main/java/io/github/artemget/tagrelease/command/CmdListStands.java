@@ -26,7 +26,6 @@ package io.github.artemget.tagrelease.command;
 
 import io.github.artemget.tagrelease.domain.Stands;
 import io.github.artemget.teleroute.command.Cmd;
-import io.github.artemget.teleroute.command.CmdException;
 import io.github.artemget.teleroute.send.Send;
 import io.github.artemget.teleroute.telegrambots.send.SendMessageWrap;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -56,7 +55,7 @@ public final class CmdListStands implements Cmd<Update, AbsSender> {
     public Send<AbsSender> execute(final Update update)  {
         final SendMessage message = new SendMessage(
             update.getMessage().getChatId().toString(),
-            new Stands.Text(this.stands).toString()
+            new Stands.Printed(this.stands).toString()
         );
         message.setReplyToMessageId(update.getMessage().getMessageId());
         message.enableMarkdownV2(true);
