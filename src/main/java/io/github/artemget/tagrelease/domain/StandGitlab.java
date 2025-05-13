@@ -25,7 +25,7 @@
 package io.github.artemget.tagrelease.domain;
 
 /**
- * Servers at gitlab.
+ * Server at gitlab.
  *
  * @since 0.1.0
  */

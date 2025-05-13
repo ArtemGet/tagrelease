@@ -25,6 +25,12 @@
 package io.github.artemget.tagrelease.domain;
 
 import java.util.List;
+
+/**
+ * Servers.
+ *
+ * @since 0.1.0
+ */
 public class StandsGitlab implements Stands {
     @Override
     public List<Stand> stands() {
