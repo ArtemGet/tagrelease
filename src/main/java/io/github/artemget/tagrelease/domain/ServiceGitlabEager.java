@@ -24,12 +24,30 @@
 
 package io.github.artemget.tagrelease.domain;
 
+import io.github.artemget.tagrelease.exception.TagException;
 import org.cactoos.Scalar;
 
-public class ServiceGitlabEager implements Service {
+/**
+ * Application's source code in gitlab.
+ *
+ * @since 0.1.0
+ */
+public final class ServiceGitlabEager implements Service {
+    /**
+     * Application name.
+     */
     private final String name;
+    /**
+     * Application tag.
+     */
     private final String tag;
 
+    /**
+     * Main ctor.
+     *
+     * @param name Of application
+     * @param tag Of application
+     */
     public ServiceGitlabEager(final String name, final String tag) {
         this.name = name;
         this.tag = tag;
@@ -46,12 +64,11 @@ public class ServiceGitlabEager implements Service {
     }
 
     @Override
-    public Service tagged(Scalar<String> tag) {
-        //todo: req to gitlab
+    public Service tagged(final Scalar<String> tag) throws TagException {
         try {
             return new ServiceGitlabEager(this.name, tag.value());
-        } catch (Exception exception) {
-            throw new UnsupportedOperationException(exception);
+        } catch (final Exception exception) {
+            throw new TagException(String.format("Failed to create tag for service: %s", this.name), exception);
         }
     }
 }
