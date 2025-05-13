@@ -42,7 +42,7 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
  *
  * @since 0.1.0
  */
-public class CmdListStand implements Cmd<Update, AbsSender> {
+public final class CmdListStand implements Cmd<Update, AbsSender> {
     /**
      * Available stands.
      */
@@ -56,6 +56,8 @@ public class CmdListStand implements Cmd<Update, AbsSender> {
         this.stands = stands;
     }
 
+    // @checkstyle IllegalCatchCheck (50 lines)
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     @Override
     public Send<AbsSender> execute(final Update update) throws CmdException {
         final SendMessage message;
@@ -66,12 +68,15 @@ public class CmdListStand implements Cmd<Update, AbsSender> {
                     this.stands.stand(
                         new Trimmed(
                             new Replaced(
-                                new TextOf(update.getMessage().getText()), "Покажи сервис", "")
+                                new TextOf(update.getMessage().getText()),
+                                "Покажи сервис",
+                                ""
+                            )
                         ).asString()
                     )
                 ).toString()
             );
-        } catch (Exception exception) {
+        } catch (final Exception exception) {
             throw new CmdException(
                 String.format("Failed to eject value from cmd %s", update.getMessage().getText()),
                 exception
