@@ -38,7 +38,7 @@ public final class ServicesGitlab implements Services {
     }
 
     @Override
-    public Service service(String name) {
+    public Service service(final String name) {
         throw new UnsupportedOperationException();
     }
 }
