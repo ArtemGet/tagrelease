@@ -32,11 +32,13 @@ import org.cactoos.Scalar;
  *
  * @since 0.1.0
  */
+@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
 public final class ServiceGitlabEager implements Service {
     /**
      * Application name.
      */
     private final String name;
+
     /**
      * Application tag.
      */
@@ -63,12 +65,17 @@ public final class ServiceGitlabEager implements Service {
         return this.tag;
     }
 
+    // @checkstyle IllegalCatchCheck (50 lines)
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     @Override
-    public Service tagged(final Scalar<String> tag) throws TagException {
+    public Service tagged(final Scalar<String> rule) throws TagException {
         try {
-            return new ServiceGitlabEager(this.name, tag.value());
+            return new ServiceGitlabEager(this.name, rule.value());
         } catch (final Exception exception) {
-            throw new TagException(String.format("Failed to create tag for service: %s", this.name), exception);
+            throw new TagException(
+                String.format("Failed to create tag for service: %s", this.name),
+                exception
+            );
         }
     }
 }

@@ -22,28 +22,7 @@
  * SOFTWARE.
  */
 
-package io.github.artemget.tagrelease.exception;
-
-import java.io.Serial;
-
 /**
- * Throws at build/get tag.
- *
- * @since 0.1.0
+ * Exception directory.
  */
-public class TagException extends Exception {
-    @Serial
-    private static final long serialVersionUID = 4172661814037122452L;
-
-    public TagException(final String message) {
-        super(message);
-    }
-
-    public TagException(final String message, final Throwable cause) {
-        super(message, cause);
-    }
-
-    public TagException(final Throwable cause) {
-        super(cause);
-    }
-}
+package io.github.artemget.tagrelease.exception;

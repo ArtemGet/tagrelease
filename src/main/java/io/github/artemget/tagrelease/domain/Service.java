@@ -50,8 +50,8 @@ public interface Service {
     /**
      * Builds new tag.
      *
-     * @param tag Build by rule
+     * @param rule To build tag
      * @return Service with a new tag
      */
-    Service tagged(final Scalar<String> tag) throws TagException;
+    Service tagged(Scalar<String> rule) throws TagException;
 }

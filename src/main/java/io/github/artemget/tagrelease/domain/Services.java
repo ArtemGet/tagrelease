@@ -47,7 +47,7 @@ public interface Services {
      * @param name Of service
      * @return Service
      */
-    Service service(final String name);
+    Service service(String name);
 
     /**
      * Printed Services.
@@ -73,7 +73,14 @@ public interface Services {
         @Override
         public String asString() {
             return this.services.services().stream()
-                .map(service -> String.format("```java %s:%s```\n    ", service.name(), service.tag()))
+                .map(
+                    service ->
+                        String.format(
+                            "```java %s:%s```\n    ",
+                            service.name(),
+                            service.tag()
+                        )
+                )
                 .collect(Collectors.joining());
         }
     }

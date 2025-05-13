@@ -47,7 +47,7 @@ public interface Stands {
      * @param name Name
      * @return Server
      */
-    Stand stand(final String name);
+    Stand stand(String name);
 
     /**
      * Printed servers.
@@ -70,7 +70,7 @@ public interface Stands {
 
         @Override
         public String asString() {
-            return stands.stands().stream()
+            return this.stands.stands().stream()
                 .map(st -> new Stand.Printed(st).toString())
                 .collect(Collectors.joining());
         }
