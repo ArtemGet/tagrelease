@@ -24,20 +24,54 @@
 
 package io.github.artemget.tagrelease.domain;
 
+import org.cactoos.Text;
+
+/**
+ * Server.
+ *
+ * @since 0.1.0
+ */
 public interface Stand {
+    /**
+     * Returns server name.
+     *
+     * @return Name
+     */
     String name();
 
+    /**
+     * Returns server's services.
+     *
+     * @return Services
+     */
     Services services();
 
-    final class Text {
+    /**
+     * Printed server.
+     * Format:
+     *  Стенд: %s
+     *  Сервисы:
+     *      %s
+     *
+     * @since 0.1.0
+     */
+    final class Printed implements Text {
+        /**
+         * Server.
+         */
         private final Stand stand;
 
-        public Text(final Stand stand) {
+        /**
+         * Main ctor.
+         *
+         * @param stand Stand
+         */
+        public Printed(final Stand stand) {
             this.stand = stand;
         }
 
         @Override
-        public String toString() {
+        public String asString() {
             return String.format(
                 """
                     Стенд: %s
@@ -45,7 +79,7 @@ public interface Stand {
                         %s
                     """,
                 this.stand.name(),
-                new Services.Text(this.stand.services())
+                new Services.Printed(this.stand.services())
             );
         }
     }

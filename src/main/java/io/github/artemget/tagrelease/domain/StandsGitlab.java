@@ -25,14 +25,20 @@
 package io.github.artemget.tagrelease.domain;
 
 import java.util.List;
-public class StandsGitlab implements Stands {
+
+/**
+ * Servers.
+ *
+ * @since 0.1.0
+ */
+public final class StandsGitlab implements Stands {
     @Override
     public List<Stand> stands() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Stand stand(String name) {
+    public Stand stand(final String name) {
         throw new UnsupportedOperationException();
     }
 }

@@ -22,43 +22,28 @@
  * SOFTWARE.
  */
 
-package io.github.artemget.tagrelease.match;
+package io.github.artemget.tagrelease.exception;
 
-import io.github.artemget.entrys.Entry;
-import io.github.artemget.entrys.EntryException;
-import io.github.artemget.entrys.EntryExceptionUnchecked;
-import io.github.artemget.teleroute.update.Wrap;
-import java.util.Set;
-import java.util.function.Predicate;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import java.io.Serial;
 
 /**
- * Matches admin/s or not.
+ * Throws at build/get tag.
  *
  * @since 0.1.0
  */
-public final class MatchAdmin implements Predicate<Wrap<Update>> {
-    /**
-     * Admin ids.
-     */
-    private final Entry<Set<String>> admins;
+public class TagException extends Exception {
+    @Serial
+    private static final long serialVersionUID = 4172661814037122452L;
 
-    /**
-     * Main ctor.
-     *
-     * @param admins Of bot.
-     */
-    public MatchAdmin(final Entry<Set<String>> admins) {
-        this.admins = admins;
+    public TagException(final String message) {
+        super(message);
     }
 
-    @Override
-    public boolean test(final Wrap<Update> update) {
-        try {
-            return this.admins.value()
-                .contains(update.src().getMessage().getFrom().getId().toString());
-        } catch (final EntryException exception) {
-            throw new EntryExceptionUnchecked(exception);
-        }
+    public TagException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
+    public TagException(final Throwable cause) {
+        super(cause);
     }
 }

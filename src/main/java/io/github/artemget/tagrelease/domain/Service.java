@@ -24,12 +24,34 @@
 
 package io.github.artemget.tagrelease.domain;
 
+import io.github.artemget.tagrelease.exception.TagException;
 import org.cactoos.Scalar;
 
+/**
+ * Application's source code in git.
+ *
+ * @since 0.1.0
+ */
 public interface Service {
+    /**
+     * Returns application name.
+     *
+     * @return Name
+     */
     String name();
 
+    /**
+     * Returns application's tag.
+     *
+     * @return Tag
+     */
     String tag();
 
-    Service tagged(Scalar<String> tag);
+    /**
+     * Builds new tag.
+     *
+     * @param rule To build tag
+     * @return Service with a new tag
+     */
+    Service tagged(Scalar<String> rule) throws TagException;
 }

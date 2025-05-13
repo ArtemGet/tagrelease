@@ -24,7 +24,12 @@
 
 package io.github.artemget.tagrelease.domain;
 
-public class StandGitlab implements Stand {
+/**
+ * Server at gitlab.
+ *
+ * @since 0.1.0
+ */
+public final class StandGitlab implements Stand {
     @Override
     public String name() {
         throw new UnsupportedOperationException();

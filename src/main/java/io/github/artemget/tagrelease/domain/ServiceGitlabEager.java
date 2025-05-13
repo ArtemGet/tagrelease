@@ -24,12 +24,32 @@
 
 package io.github.artemget.tagrelease.domain;
 
+import io.github.artemget.tagrelease.exception.TagException;
 import org.cactoos.Scalar;
 
-public class ServiceGitlabEager implements Service {
+/**
+ * Application's source code in gitlab.
+ *
+ * @since 0.1.0
+ */
+@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
+public final class ServiceGitlabEager implements Service {
+    /**
+     * Application name.
+     */
     private final String name;
+
+    /**
+     * Application tag.
+     */
     private final String tag;
 
+    /**
+     * Main ctor.
+     *
+     * @param name Of application
+     * @param tag Of application
+     */
     public ServiceGitlabEager(final String name, final String tag) {
         this.name = name;
         this.tag = tag;
@@ -45,13 +65,17 @@ public class ServiceGitlabEager implements Service {
         return this.tag;
     }
 
+    // @checkstyle IllegalCatchCheck (50 lines)
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     @Override
-    public Service tagged(Scalar<String> tag) {
-        //todo: req to gitlab
+    public Service tagged(final Scalar<String> rule) throws TagException {
         try {
-            return new ServiceGitlabEager(this.name, tag.value());
-        } catch (Exception exception) {
-            throw new UnsupportedOperationException(exception);
+            return new ServiceGitlabEager(this.name, rule.value());
+        } catch (final Exception exception) {
+            throw new TagException(
+                String.format("Failed to create tag for service: %s", this.name),
+                exception
+            );
         }
     }
 }
