@@ -36,11 +36,12 @@ import java.util.regex.PatternSyntaxException;
  */
 public final class ESplit implements Entry<Set<String>> {
     /**
-     * Origin string entry
+     * Origin string entry.
      */
     private final Entry<String> origin;
+
     /**
-     * Split delimiter
+     * Split delimiter.
      */
     private final String delimiter;
 
@@ -69,9 +70,13 @@ public final class ESplit implements Entry<Set<String>> {
         final String value = this.origin.value();
         try {
             return Set.of(value.split(this.delimiter));
-        } catch (PatternSyntaxException exception) {
+        } catch (final PatternSyntaxException exception) {
             throw new EntryException(
-                String.format("Wrong pattern delimiter: %s for entry value: %s", this.delimiter, value),
+                String.format(
+                    "Wrong pattern delimiter: %s for entry value: %s",
+                    this.delimiter,
+                    value
+                ),
                 exception
             );
         }
