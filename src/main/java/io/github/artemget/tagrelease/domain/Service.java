@@ -26,10 +26,31 @@ package io.github.artemget.tagrelease.domain;
 
 import org.cactoos.Scalar;
 
+/**
+ * Application's source code in git.
+ *
+ * @since 0.1.0
+ */
 public interface Service {
+    /**
+     * Returns application name.
+     *
+     * @return Name
+     */
     String name();
 
+    /**
+     * Returns application's tag.
+     *
+     * @return
+     */
     String tag();
 
-    Service tagged(Scalar<String> tag);
+    /**
+     * Builds new tag.
+     *
+     * @param tag Build by rule
+     * @return Service with a new tag
+     */
+    Service tagged(final Scalar<String> tag);
 }
