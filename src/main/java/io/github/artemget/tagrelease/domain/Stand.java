@@ -24,6 +24,8 @@
 
 package io.github.artemget.tagrelease.domain;
 
+import org.cactoos.Text;
+
 /**
  * Server.
  *
@@ -44,15 +46,32 @@ public interface Stand {
      */
     Services services();
 
-    final class Text {
+    /**
+     * Printed server.
+     * Format:
+     *  Стенд: %s
+     *  Сервисы:
+     *      %s
+     *
+     * @since 0.1.0
+     */
+    final class Printed implements Text {
+        /**
+         * Server.
+         */
         private final Stand stand;
 
-        public Text(final Stand stand) {
+        /**
+         * Main ctor.
+         *
+         * @param stand Stand
+         */
+        public Printed(final Stand stand) {
             this.stand = stand;
         }
 
         @Override
-        public String toString() {
+        public String asString() {
             return String.format(
                 """
                     Стенд: %s
