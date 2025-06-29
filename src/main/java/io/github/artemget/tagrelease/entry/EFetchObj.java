@@ -22,23 +22,31 @@
  * SOFTWARE.
  */
 
-package io.github.artemget.tagrelease.domain;
+package io.github.artemget.tagrelease.entry;
 
-import java.util.List;
+import com.jcabi.http.Request;
+import io.github.artemget.entrys.Entry;
+import io.github.artemget.entrys.EntryException;
+import javax.json.JsonObject;
+import javax.json.JsonStructure;
 
-/**
- * Servers.
- *
- * @since 0.1.0
- */
-public final class StandsGitlab implements Stands {
-    @Override
-    public List<Stand> stands() {
-        throw new UnsupportedOperationException();
+public class EFetchObj implements Entry<JsonObject> {
+    private final Entry<JsonStructure> origin;
+
+    public EFetchObj(final Request request) {
+        this(new EFetchJson(request));
+    }
+
+    public EFetchObj(final Entry<JsonStructure> origin) {
+        this.origin = origin;
     }
 
     @Override
-    public Stand stand(final String name) {
-        throw new UnsupportedOperationException();
+    public JsonObject value() throws EntryException {
+        try {
+            return this.origin.value().asJsonObject();
+        } catch (final ClassCastException exception) {
+            throw new EntryException("Failed to map json structure to JsonObject", exception);
+        }
     }
 }

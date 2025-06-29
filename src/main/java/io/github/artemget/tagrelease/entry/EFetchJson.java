@@ -22,23 +22,35 @@
  * SOFTWARE.
  */
 
-package io.github.artemget.tagrelease.domain;
+package io.github.artemget.tagrelease.entry;
 
-import java.util.List;
+import com.jcabi.http.Request;
+import com.jcabi.http.response.RestResponse;
+import io.github.artemget.entrys.Entry;
+import io.github.artemget.entrys.EntryException;
+import java.io.IOException;
+import java.io.StringReader;
+import javax.json.Json;
+import javax.json.JsonStructure;
 
-/**
- * Applications from gitlab.
- *
- * @since 0.1.0
- */
-public final class ServicesGitlab implements Services {
-    @Override
-    public List<Service> services() {
-        throw new UnsupportedOperationException();
+public class EFetchJson implements Entry<JsonStructure> {
+    private final Request request;
+
+    public EFetchJson(final Request request) {
+        this.request = request;
     }
 
     @Override
-    public Service service(final String name) {
-        throw new UnsupportedOperationException();
+    public JsonStructure value() throws EntryException {
+        try {
+            return Json.createReader(
+                new StringReader(request.fetch().as(RestResponse.class).body())
+            ).read();
+        } catch (final IOException exception) {
+            throw new EntryException(
+                String.format("Failed to fetch json array from resource:%s", this.request.uri()),
+                exception
+            );
+        }
     }
 }

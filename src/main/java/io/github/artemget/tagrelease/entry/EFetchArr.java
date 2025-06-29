@@ -25,32 +25,28 @@
 package io.github.artemget.tagrelease.entry;
 
 import com.jcabi.http.Request;
-import com.jcabi.http.response.RestResponse;
 import io.github.artemget.entrys.Entry;
 import io.github.artemget.entrys.EntryException;
-import java.io.IOException;
-import java.io.StringReader;
-import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonStructure;
 
 public class EFetchArr implements Entry<JsonArray> {
-    private final Request request;
+    private final Entry<JsonStructure> origin;
 
     public EFetchArr(final Request request) {
-        this.request = request;
+        this(new EFetchJson(request));
+    }
+
+    public EFetchArr(final Entry<JsonStructure> origin) {
+        this.origin = origin;
     }
 
     @Override
     public JsonArray value() throws EntryException {
         try {
-            return Json.createReader(
-                new StringReader(request.fetch().as(RestResponse.class).body())
-            ).readArray();
-        } catch (final IOException exception) {
-            throw new EntryException(
-                String.format("Failed to fetch json array from resource:%s", this.request.uri()),
-                exception
-            );
+            return this.origin.value().asJsonArray();
+        } catch (final ClassCastException exception) {
+            throw new EntryException("Failed to map json structure to JsonArray", exception);
         }
     }
 }
