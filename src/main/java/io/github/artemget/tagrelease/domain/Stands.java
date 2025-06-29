@@ -24,6 +24,7 @@
 
 package io.github.artemget.tagrelease.domain;
 
+import io.github.artemget.tagrelease.exception.DomainException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.cactoos.Text;
@@ -39,7 +40,7 @@ public interface Stands {
      *
      * @return Servers
      */
-    List<Stand> stands();
+    List<Stand> stands() throws DomainException;
 
     /**
      * Returns server by it's name.
@@ -47,7 +48,7 @@ public interface Stands {
      * @param name Name
      * @return Server
      */
-    Stand stand(String name);
+    Stand stand(String name) throws DomainException;
 
     /**
      * Printed servers.
@@ -69,7 +70,7 @@ public interface Stands {
         }
 
         @Override
-        public String asString() {
+        public String asString() throws DomainException {
             return this.stands.stands().stream()
                 .map(st -> new Stand.Printed(st).toString())
                 .collect(Collectors.joining());
