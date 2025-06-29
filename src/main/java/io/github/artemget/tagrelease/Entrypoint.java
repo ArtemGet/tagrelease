@@ -25,19 +25,14 @@
 package io.github.artemget.tagrelease;
 
 import io.github.artemget.entrys.EntryException;
-import io.github.artemget.entrys.system.EEnv;
+import io.github.artemget.entrys.file.EVal;
+import io.github.artemget.entrys.operation.ESplit;
 import io.github.artemget.tagrelease.bot.Bot;
 import io.github.artemget.tagrelease.bot.BotReg;
-import io.github.artemget.tagrelease.command.CmdListStand;
-import io.github.artemget.tagrelease.command.CmdListStands;
-import io.github.artemget.tagrelease.domain.StandsGitlab;
-import io.github.artemget.tagrelease.entry.ESplit;
+import io.github.artemget.tagrelease.command.CmdListAllServices;
 import io.github.artemget.tagrelease.match.MatchAdmin;
-import io.github.artemget.tagrelease.match.MatchChats;
-import io.github.artemget.teleroute.match.MatchAll;
 import io.github.artemget.teleroute.match.MatchRegex;
 import io.github.artemget.teleroute.route.RouteDfs;
-import io.github.artemget.teleroute.route.RouteEnd;
 import io.github.artemget.teleroute.route.RouteFork;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -59,30 +54,35 @@ public class Entrypoint {
     public static void main(final String[] args) throws EntryException, TelegramApiException {
         new BotReg(
             new Bot(
-                new EEnv("BOT_NAME"),
-                new EEnv("BOT_TOKEN"),
+                new EVal("bot.name"),
+                new EVal("bot.token"),
                 new RouteFork<>(
-                    new MatchAll<>(
-                        new MatchChats(new ESplit(new EEnv("BOT_CHATS"))),
-                        new MatchAdmin(new ESplit(new EEnv("BOT_ADMINS")))
-                    ),
+                    new MatchAdmin(new ESplit(new EVal("admins"))),
                     new RouteDfs<>(
                         new RouteFork<>(
-                            new MatchRegex<>("Покажи сервисы"),
-                            new CmdListStands(new StandsGitlab())
-                        ),
-                        new RouteFork<>(
-                            new MatchRegex<>("Покажи сервис"),
-                            new CmdListStand(new StandsGitlab())
-                        ),
-                        new RouteFork<>(
-                            new MatchRegex<>("Собери тэги по стенду"),
-                            new RouteEnd<>(),
-                            new RouteFork<>(
-                                new MatchRegex<>("Собери тэг"),
-                                new RouteEnd<>()
+                            new MatchRegex<>("([Пп]покажи сервисы|\\+).*"),
+                            new CmdListAllServices(
+                                new EVal("provider.host"),
+                                new EVal("provider.project"),
+                                new EVal("provider.token")
                             )
                         )
+//                        new RouteFork<>(
+//                            new MatchRegex<>("Покажи стенды"),
+//                            new CmdListStands(new StandsGitlab())
+//                        ),
+//                        new RouteFork<>(
+//                            new MatchRegex<>("Покажи стенд"),
+//                            new CmdListStand(new StandsGitlab())
+//                        ),
+//                        new RouteFork<>(
+//                            new MatchRegex<>("Собери тэги по стенду"),
+//                            new RouteEnd<>(),
+//                            new RouteFork<>(
+//                                new MatchRegex<>("Собери тэг"),
+//                                new RouteEnd<>()
+//                            )
+//                        )
                     )
                 )
             )
