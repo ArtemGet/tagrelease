@@ -45,10 +45,10 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
  *
  * @since 0.0.1
  */
-public final class CmdListAllServices implements Cmd<Update, AbsSender> {
+public final class CmdListServicesAll implements Cmd<Update, AbsSender> {
     private final Services services;
 
-    public CmdListAllServices(
+    public CmdListServicesAll(
         final Entry<String> host,
         final Entry<String> project,
         final Entry<String> token
@@ -56,7 +56,7 @@ public final class CmdListAllServices implements Cmd<Update, AbsSender> {
         this(new ServicesAll(host, project, token));
     }
 
-    public CmdListAllServices(final Services services) {
+    public CmdListServicesAll(final Services services) {
         this.services = services;
     }
 

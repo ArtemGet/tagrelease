@@ -42,7 +42,7 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
  *
  * @since 0.1.0
  */
-public final class CmdListStand implements Cmd<Update, AbsSender> {
+public final class CmdListServices implements Cmd<Update, AbsSender> {
     /**
      * Available stands.
      */
@@ -52,7 +52,7 @@ public final class CmdListStand implements Cmd<Update, AbsSender> {
      * Main ctor.
      * @param stands Available stands.
      */
-    public CmdListStand(final Stands stands) {
+    public CmdListServices(final Stands stands) {
         this.stands = stands;
     }
 
