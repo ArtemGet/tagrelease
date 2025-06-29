@@ -24,10 +24,15 @@
 
 package io.github.artemget.tagrelease.command;
 
+import io.github.artemget.tagrelease.domain.Stand;
 import io.github.artemget.tagrelease.domain.Stands;
+import io.github.artemget.tagrelease.exception.DomainException;
 import io.github.artemget.teleroute.command.Cmd;
+import io.github.artemget.teleroute.command.CmdException;
 import io.github.artemget.teleroute.send.Send;
 import io.github.artemget.teleroute.telegrambots.send.SendMessageWrap;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.bots.AbsSender;
@@ -52,10 +57,24 @@ public final class CmdListStands implements Cmd<Update, AbsSender> {
     }
 
     @Override
-    public Send<AbsSender> execute(final Update update)  {
+    public Send<AbsSender> execute(final Update update) throws CmdException {
+        final List<Stand> stands;
+        try {
+            stands = this.stands.stands();
+        } catch (final DomainException exception) {
+            throw new CmdException(
+                String.format(
+                    "Error list all stands. From user:'%s', userId:'%s' in chat:'%s'",
+                    update.getMessage().getFrom().getUserName(),
+                    update.getMessage().getFrom().getId(),
+                    update.getMessage().getChatId()
+                ),
+                exception
+            );
+        }
         final SendMessage message = new SendMessage(
             update.getMessage().getChatId().toString(),
-            new Stands.Printed(this.stands).toString()
+            stands.stream().map(Stand::name).collect(Collectors.joining("\n"))
         );
         message.setReplyToMessageId(update.getMessage().getMessageId());
         message.enableMarkdownV2(true);
