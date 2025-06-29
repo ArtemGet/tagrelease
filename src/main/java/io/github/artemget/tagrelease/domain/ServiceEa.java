@@ -24,7 +24,16 @@
 
 package io.github.artemget.tagrelease.domain;
 
-import io.github.artemget.tagrelease.exception.TagException;
+import com.amihaiemil.eoyaml.Yaml;
+import com.jcabi.http.Request;
+import com.jcabi.http.response.RestResponse;
+import io.github.artemget.entrys.Entry;
+import io.github.artemget.entrys.EntryException;
+import io.github.artemget.entrys.json.EJsonStr;
+import io.github.artemget.tagrelease.exception.DomainException;
+import java.io.IOException;
+import java.io.StringReader;
+import javax.json.Json;
 import org.cactoos.Scalar;
 
 /**
@@ -33,7 +42,7 @@ import org.cactoos.Scalar;
  * @since 0.1.0
  */
 @SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
-public final class ServiceGitlabEager implements Service {
+public final class ServiceEa implements Service {
     /**
      * Application name.
      */
@@ -44,13 +53,32 @@ public final class ServiceGitlabEager implements Service {
      */
     private final String tag;
 
+    //TODO: remove eager and req in ctor
+    public ServiceEa(final Entry<String> name, final Entry<Request> tag) throws EntryException, IOException {
+        this(
+            name.value(),
+            Yaml.createYamlInput(
+                    new EJsonStr(
+                        Json.createReader(
+                            new StringReader(
+                                tag.value().fetch().as(RestResponse.class).body()
+                            )
+                        ).readObject()
+                        , "content"
+                    ).value()
+                ).readYamlMapping()
+                .yamlMapping("image")
+                .string("tag")
+        );
+    }
+
     /**
      * Main ctor.
      *
      * @param name Of application
      * @param tag Of application
      */
-    public ServiceGitlabEager(final String name, final String tag) {
+    public ServiceEa(final String name, final String tag) {
         this.name = name;
         this.tag = tag;
     }
@@ -68,11 +96,11 @@ public final class ServiceGitlabEager implements Service {
     // @checkstyle IllegalCatchCheck (50 lines)
     @SuppressWarnings("PMD.AvoidCatchingGenericException")
     @Override
-    public Service tagged(final Scalar<String> rule) throws TagException {
+    public Service tagged(final Scalar<String> rule) throws DomainException {
         try {
-            return new ServiceGitlabEager(this.name, rule.value());
+            return new ServiceEa(this.name, rule.value());
         } catch (final Exception exception) {
-            throw new TagException(
+            throw new DomainException(
                 String.format("Failed to create tag for service: %s", this.name),
                 exception
             );

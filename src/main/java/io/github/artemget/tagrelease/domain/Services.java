@@ -24,6 +24,7 @@
 
 package io.github.artemget.tagrelease.domain;
 
+import io.github.artemget.tagrelease.exception.DomainException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.cactoos.Text;
@@ -39,7 +40,7 @@ public interface Services {
      *
      * @return Services
      */
-    List<Service> services();
+    List<Service> services() throws DomainException;
 
     /**
      * Returns service from stand by it's name.
@@ -47,7 +48,7 @@ public interface Services {
      * @param name Of service
      * @return Service
      */
-    Service service(String name);
+    Service service(String name) throws DomainException;
 
     /**
      * Printed Services.
@@ -71,7 +72,7 @@ public interface Services {
         }
 
         @Override
-        public String asString() {
+        public String asString() throws DomainException{
             return this.services.services().stream()
                 .map(
                     service ->
