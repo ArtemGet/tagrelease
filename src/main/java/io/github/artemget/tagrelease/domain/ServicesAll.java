@@ -49,18 +49,26 @@ public final class ServicesAll implements Services {
     private final EFunc<String, JsonArray> named;
     private final Entry<JsonArray> all;
 
-    public ServicesAll(final Entry<String> host, final Entry<String> project) {
+    public ServicesAll(
+        final Entry<String> host,
+        final Entry<String> project,
+        final Entry<String> token
+    ) {
         this(
             (service) -> ServicesAll.fetched(
                 new JdkRequest(host.value()).uri()
                     .path(String.format("api/v4/groups/%s/projects", project.value()))
                     .queryParam("search", service)
-                    .back().method(Request.GET).header("Accept", "application/json")
+                    .back().method(Request.GET)
+                    .header("Accept", "application/json")
+                    .header("PRIVATE-TOKEN:", token.value())
             ),
             () -> ServicesAll.fetched(
                 new JdkRequest(host.value()).uri()
                     .path(String.format("api/v4/groups/%s/projects", project.value()))
-                    .back().method(Request.GET).header("Accept", "application/json")
+                    .back().method(Request.GET)
+                    .header("Accept", "application/json")
+                    .header("PRIVATE-TOKEN:", token.value())
             )
         );
     }

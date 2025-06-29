@@ -48,8 +48,12 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 public final class CmdListAllServices implements Cmd<Update, AbsSender> {
     private final Services services;
 
-    public CmdListAllServices(final Entry<String> host, final Entry<String> project) {
-        this(new ServicesAll(host, project));
+    public CmdListAllServices(
+        final Entry<String> host,
+        final Entry<String> project,
+        final Entry<String> token
+    ) {
+        this(new ServicesAll(host, project, token));
     }
 
     public CmdListAllServices(final Services services) {
