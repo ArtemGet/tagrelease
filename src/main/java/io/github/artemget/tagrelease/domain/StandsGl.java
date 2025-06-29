@@ -62,7 +62,7 @@ public final class StandsGl implements Stands {
 
     public StandsGl(
         final Entry<String> url,
-        final Entry<String> project,
+        final Entry<String> release,
         final Entry<String> repo,
         final Entry<String> token
     ) {
@@ -85,7 +85,7 @@ public final class StandsGl implements Stands {
                     .header("Accept", "application/json")
                     .header("PRIVATE-TOKEN:", token.value())
             ).value(),
-            (branch) -> new ServicesGl(url, project, () -> branch, token)
+            (branch) -> new ServicesGl(url, release, () -> branch, token)
         );
     }
 

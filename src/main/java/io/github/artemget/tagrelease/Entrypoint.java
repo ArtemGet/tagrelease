@@ -30,8 +30,8 @@ import io.github.artemget.entrys.file.EVal;
 import io.github.artemget.entrys.operation.ESplit;
 import io.github.artemget.tagrelease.bot.Bot;
 import io.github.artemget.tagrelease.bot.BotReg;
-import io.github.artemget.tagrelease.command.CmdListServicesAll;
 import io.github.artemget.tagrelease.command.CmdListServices;
+import io.github.artemget.tagrelease.command.CmdListServicesAll;
 import io.github.artemget.tagrelease.command.CmdListStands;
 import io.github.artemget.tagrelease.domain.Stands;
 import io.github.artemget.tagrelease.domain.StandsGl;
@@ -58,10 +58,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class Entrypoint {
     public static void main(final String[] args) throws EntryException, TelegramApiException {
         final Entry<String> host = new EVal("provider.host");
-        final Entry<String> project = new EVal("provider.project");
+        final Entry<String> release = new EVal("provider.release");
         final Entry<String> repo = new EVal("provider.token");
         final Entry<String> token = new EVal("provider.token");
-        final Stands stands = new StandsGl(host, project, repo, token);
+        final Entry<String> project = new EVal("provider.project");
+        final Stands stands = new StandsGl(host, release, repo, token);
         new BotReg(
             new Bot(
                 new EVal("bot.name"),
