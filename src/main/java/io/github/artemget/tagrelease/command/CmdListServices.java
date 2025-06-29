@@ -24,21 +24,22 @@
 
 package io.github.artemget.tagrelease.command;
 
-import io.github.artemget.tagrelease.domain.Stand;
+import io.github.artemget.entrys.EntryException;
+import io.github.artemget.entrys.operation.EUnwrap;
+import io.github.artemget.tagrelease.domain.Service;
 import io.github.artemget.tagrelease.domain.Stands;
+import io.github.artemget.tagrelease.exception.DomainException;
 import io.github.artemget.teleroute.command.Cmd;
 import io.github.artemget.teleroute.command.CmdException;
 import io.github.artemget.teleroute.send.Send;
 import io.github.artemget.teleroute.telegrambots.send.SendMessageWrap;
-import org.cactoos.text.Replaced;
-import org.cactoos.text.TextOf;
-import org.cactoos.text.Trimmed;
+import java.util.stream.Collectors;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 /**
- * Lists stand and it's services.
+ * Lists services by stand.
  *
  * @since 0.1.0
  */
@@ -60,25 +61,36 @@ public final class CmdListServices implements Cmd<Update, AbsSender> {
     @SuppressWarnings("PMD.AvoidCatchingGenericException")
     @Override
     public Send<AbsSender> execute(final Update update) throws CmdException {
+        final String request = update.getMessage().getText();
+        final String name;
+        try {
+            name = new EUnwrap(update.getMessage().getText()).value();
+        } catch (final EntryException exception) {
+            throw new CmdException(
+                String.format("Failed to get value from cmd:'%s'", request),
+                exception
+            );
+        }
         final SendMessage message;
         try {
             message = new SendMessage(
                 update.getMessage().getChatId().toString(),
-                new Stand.Printed(
-                    this.stands.stand(
-                        new Trimmed(
-                            new Replaced(
-                                new TextOf(update.getMessage().getText()),
-                                "Покажи сервис",
-                                ""
-                            )
-                        ).asString()
-                    )
-                ).toString()
+                String.format(
+                    "```\n %s\n```",
+                    this.stands.stand(name).services().services()
+                        .stream().map(Service::name).collect(Collectors.joining("\n"))
+                )
             );
-        } catch (final Exception exception) {
+        } catch (final DomainException exception) {
             throw new CmdException(
-                String.format("Failed to eject value from cmd %s", update.getMessage().getText()),
+                String.format(
+                    "Failed get services from stand:'%s' from cmd:'%s'. From user:'%s', userId:'%s' in chat:'%s'",
+                    name,
+                    request,
+                    update.getMessage().getFrom().getUserName(),
+                    update.getMessage().getFrom().getId(),
+                    update.getMessage().getChatId()
+                ),
                 exception
             );
         }
