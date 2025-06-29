@@ -24,21 +24,22 @@
 
 package io.github.artemget.tagrelease.domain;
 
+import com.amihaiemil.eoyaml.Yaml;
 import com.jcabi.http.Request;
 import com.jcabi.http.request.JdkRequest;
-import com.jcabi.http.response.RestResponse;
 import io.github.artemget.entrys.Entry;
 import io.github.artemget.entrys.EntryException;
 import io.github.artemget.entrys.json.EJsonStr;
+import io.github.artemget.tagrelease.entry.EFetchArr;
+import io.github.artemget.tagrelease.entry.EFetchObj;
 import io.github.artemget.tagrelease.entry.EFunc;
-import io.github.artemget.tagrelease.exception.CommunicationException;
 import io.github.artemget.tagrelease.exception.DomainException;
 import java.io.IOException;
-import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonValue;
 
 /**
  * Applications from gitlab.
@@ -50,55 +51,52 @@ public final class ServicesGl implements Services {
      * List repository tree. Each directory with name not starting with _ prefix - is a service.
      * GET /projects/:id/repository/tree
      */
-    private final Request services;
+    private final Entry<JsonArray> services;
 
     /**
      * Get file from repository. Tag name placed under image:tag: in this file.
      * GET /projects/:id/repository/files/:file_path
      */
-    private final EFunc<String, Request> tag;
+    private final EFunc<String, JsonObject> tag;
 
 
     /**
      * Ctor configures https req to gitlab services.
      *
-     * @param url Of gitlab.
-     * @param release Where to search services.
-     * @param branch Project which services belong to.
-     * @throws EntryException If no entry data
+     * @param url Of gitlab
+     * @param release Where to search services
+     * @param branch Project which services belong to
+     * @param token Api token
      */
     public ServicesGl(
         final Entry<String> url,
         final Entry<String> release,
         final Entry<String> branch,
         final Entry<String> token
-    ) throws EntryException {
-        this(
-            new JdkRequest(url.value()).uri()
-                .path(
-                    String.format(
-                        "api/v4/projects/%s/repository/tree",
-                        release.value()
-                    )
-                ).queryParam(
-                    "ref",
-                    branch.value()
-                ).back()
-                .method(Request.GET)
-                .header("Accept", "application/json"),
-            (service) -> new JdkRequest(url.value()).uri()
-                .path(
-                    String.format(
-                        "api/v4/projects/%s/repository/files/%s",
-                        release.value(),
-                        service.concat("%2Fvalues.yaml")
-                    )
-                ).queryParam(
-                    "ref",
-                    branch.value()
-                ).back()
-                .method(Request.GET)
-                .header("Accept", "application/json")
+    ) {
+        this(() ->
+                new EFetchArr(
+                    new JdkRequest(url.value()).uri()
+                        .path(
+                            String.format("api/v4/projects/%s/repository/tree", release.value())
+                        ).queryParam("ref", branch.value()).queryParam("per_page", "100")
+                        .back().method(Request.GET)
+                        .header("Accept", "application/json")
+                        .header("PRIVATE-TOKEN:", token.value())
+                ).value(),
+            (service) -> new EFetchObj(
+                new JdkRequest(url.value()).uri()
+                    .path(
+                        String.format(
+                            "api/v4/projects/%s/repository/files/%s",
+                            release.value(),
+                            service.concat("%2Fvalues.yaml")
+                        )
+                    ).queryParam("ref", branch.value())
+                    .back().method(Request.GET)
+                    .header("Accept", "application/json")
+                    .header("PRIVATE-TOKEN:", token.value())
+            ).value()
         );
     }
 
@@ -107,93 +105,63 @@ public final class ServicesGl implements Services {
      *
      * @param services At gitlab
      */
-    public ServicesGl(final Request services, final EFunc<String, Request> tag) {
+    public ServicesGl(final Entry<JsonArray> services, final EFunc<String, JsonObject> tag) {
         this.services = services;
         this.tag = tag;
     }
 
     @Override
     public List<Service> services() throws DomainException {
-        return null;
-//        return this.directories().stream()
-//            .filter(dir -> {
-//                    boolean pass;
-//                    try {
-//                        final JsonObject json = dir.asJsonObject();
-//                        final boolean directory = new EJsonStr(json, "type").value().equals("tree");
-//                        final boolean service = !new EJsonStr(json, "name").value().startsWith("_");
-//                        pass = directory && service;
-//                    } catch (final EntryException exception) {
-//                        pass = false;
-//                        //TODO: add logging
-//                    }
-//                    return pass;
-//                }
-//            ).map(dir -> {
-//                    final String directory = new EJsonStr(dir.asJsonObject(), "name").value();
-//                    return new ServiceGitlabEager(
-//                        () -> directory,
-//                        () -> this.tag.apply(directory)
-//                    );
-//                }
-//            ).collect(Collectors.toList());
+        final JsonArray array;
+        try {
+            array = this.services.value();
+        } catch (final EntryException exception) {
+            throw new DomainException("Failed to fetch services from stand", exception);
+        }
+        final List<Service> services = new ArrayList<>();
+        for (final JsonValue dir : array) {
+            final JsonObject json = dir.asJsonObject();
+            final String name = json.getString("name");
+            final boolean directory = json.getString("type").equals("tree");
+            final boolean service = !name.startsWith("_");
+            if (directory && service) {
+                services.add(this.service(name));
+            }
+        }
+        return services;
     }
 
     @Override
     public Service service(final String name) throws DomainException {
-        return null;
-//        return this.directories().stream()
-//            .filter(service -> {
-//                    boolean pass;
-//                    try {
-//                        JsonObject json = service.asJsonObject();
-//                        final boolean directory = new EJsonStr(json, "type").value().equals("tree");
-//                        final boolean named = new EJsonStr(json, "name").value().equals(name);
-//                        pass = directory && named;
-//                    } catch (final EntryException exception) {
-//                        pass = false;
-//                        //TODO: add logging
-//                    }
-//                    return pass;
-//                }
-//            ).findFirst()
-//            .map(dir -> {
-//                final String directory = new EJsonStr(dir.asJsonObject(), "name").value();
-//                return new ServiceGitlabEager(
-//                    () -> directory,
-//                    () -> this.tag.apply(directory)
-//                );
-//            })
-//            .orElseThrow();
-    }
-
-    private Service created(final JsonObject dir) throws DomainException {
+        final JsonObject json;
         try {
-            final String directory = new EJsonStr(dir.asJsonObject(), "name").value();
-            return new ServiceEa(
-                () -> directory,
-                () -> this.tag.apply(directory)
+            json = this.tag.apply(name);
+        } catch (EntryException exception) {
+            throw new DomainException(
+                String.format("Failed to fetch '%s' service from stand", name),
+                exception
             );
-        } catch (final EntryException exception) {
-            throw new DomainException(exception);
-        } catch (final IOException exception) {
-            throw new CommunicationException("Failed to fetch file from gitlab.", exception);
         }
-    }
-
-    private JsonArray directories() throws DomainException {
+        final String content;
         try {
-            return Json.createReader(
-                new StringReader(
-                    this.services.fetch().as(RestResponse.class).body()
-                )
-            ).readArray();
+            content = new EJsonStr(json, "content").value();
+        } catch (final EntryException exception) {
+            throw new DomainException(
+                String.format("Failed to get content for service:'%s' from:'%s'", name, json),
+                exception
+            );
+        }
+        try {
+            return new ServiceEa(
+                "",
+                name,
+                Yaml.createYamlInput(content).readYamlMapping()
+                    .yamlMapping("image")
+                    .string("tag")
+            );
         } catch (final IOException exception) {
-            throw new CommunicationException(
-                String.format(
-                    "Failed to fetch services names from gitlab. Request: %s",
-                    this.services.uri()
-                ),
+            throw new DomainException(
+                String.format("Failed to get content for service:'%s' from:'%s'", name, json),
                 exception
             );
         }
