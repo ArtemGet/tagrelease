@@ -26,17 +26,14 @@ package io.github.artemget.tagrelease.domain;
 
 import com.jcabi.http.Request;
 import com.jcabi.http.request.JdkRequest;
-import com.jcabi.http.response.RestResponse;
 import io.github.artemget.entrys.Entry;
 import io.github.artemget.entrys.EntryException;
 import io.github.artemget.entrys.json.EJsonStr;
+import io.github.artemget.tagrelease.entry.EFetchArr;
 import io.github.artemget.tagrelease.entry.EFunc;
 import io.github.artemget.tagrelease.exception.DomainException;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonValue;
 
@@ -55,40 +52,27 @@ public final class ServicesAll implements Services {
         final Entry<String> token
     ) {
         this(
-            (service) -> ServicesAll.fetched(
+            (service) -> new EFetchArr(
                 new JdkRequest(host.value()).uri()
                     .path(String.format("api/v4/groups/%s/projects", project.value()))
                     .queryParam("search", service)
                     .back().method(Request.GET)
                     .header("Accept", "application/json")
                     .header("PRIVATE-TOKEN:", token.value())
-            ),
-            () -> ServicesAll.fetched(
+            ).value(),
+            () -> new EFetchArr(
                 new JdkRequest(host.value()).uri()
                     .path(String.format("api/v4/groups/%s/projects", project.value()))
                     .back().method(Request.GET)
                     .header("Accept", "application/json")
                     .header("PRIVATE-TOKEN:", token.value())
-            )
+            ).value()
         );
     }
 
     public ServicesAll(final EFunc<String, JsonArray> named, final Entry<JsonArray> all) {
         this.named = named;
         this.all = all;
-    }
-
-    private static JsonArray fetched(final Request request) throws EntryException {
-        try {
-            return Json.createReader(
-                new StringReader(request.fetch().as(RestResponse.class).body())
-            ).readArray();
-        } catch (final IOException exception) {
-            throw new EntryException(
-                "Failed to fetch from gitlab",
-                exception
-            );
-        }
     }
 
     @Override
