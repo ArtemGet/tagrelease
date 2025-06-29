@@ -24,12 +24,15 @@
 
 package io.github.artemget.tagrelease;
 
+import io.github.artemget.entrys.Entry;
 import io.github.artemget.entrys.EntryException;
 import io.github.artemget.entrys.file.EVal;
 import io.github.artemget.entrys.operation.ESplit;
 import io.github.artemget.tagrelease.bot.Bot;
 import io.github.artemget.tagrelease.bot.BotReg;
 import io.github.artemget.tagrelease.command.CmdListAllServices;
+import io.github.artemget.tagrelease.command.CmdListStands;
+import io.github.artemget.tagrelease.domain.StandsGl;
 import io.github.artemget.tagrelease.match.MatchAdmin;
 import io.github.artemget.teleroute.match.MatchRegex;
 import io.github.artemget.teleroute.route.RouteDfs;
@@ -52,6 +55,10 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 )
 public class Entrypoint {
     public static void main(final String[] args) throws EntryException, TelegramApiException {
+        final Entry<String> host = new EVal("provider.host");
+        final Entry<String> project = new EVal("provider.project");
+        final Entry<String> repo = new EVal("provider.token");
+        final Entry<String> token = new EVal("provider.token");
         new BotReg(
             new Bot(
                 new EVal("bot.name"),
@@ -60,17 +67,13 @@ public class Entrypoint {
                     new MatchAdmin(new ESplit(new EVal("admins"))),
                     new RouteDfs<>(
                         new RouteFork<>(
-                            new MatchRegex<>("([Пп]покажи сервисы|\\+).*"),
-                            new CmdListAllServices(
-                                new EVal("provider.host"),
-                                new EVal("provider.project"),
-                                new EVal("provider.token")
-                            )
+                            new MatchRegex<>("([Пп]окажи сервисы|\\+).*"),
+                            new CmdListAllServices(host, project, token)
+                        ),
+                        new RouteFork<>(
+                            new MatchRegex<>("([Пп]окажи стенды|\\+).*"),
+                            new CmdListStands(new StandsGl(host, project, repo, token))
                         )
-//                        new RouteFork<>(
-//                            new MatchRegex<>("Покажи стенды"),
-//                            new CmdListStands(new StandsGitlab())
-//                        ),
 //                        new RouteFork<>(
 //                            new MatchRegex<>("Покажи стенд"),
 //                            new CmdListStand(new StandsGitlab())
