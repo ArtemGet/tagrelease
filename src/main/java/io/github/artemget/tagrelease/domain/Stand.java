@@ -24,6 +24,7 @@
 
 package io.github.artemget.tagrelease.domain;
 
+import io.github.artemget.tagrelease.exception.DomainException;
 import org.cactoos.Text;
 
 /**
@@ -44,7 +45,7 @@ public interface Stand {
      *
      * @return Services
      */
-    Services services();
+    Services services() throws DomainException;
 
     /**
      * Printed server.
@@ -71,7 +72,7 @@ public interface Stand {
         }
 
         @Override
-        public String asString() {
+        public String asString() throws DomainException {
             return String.format(
                 """
                     Стенд: %s

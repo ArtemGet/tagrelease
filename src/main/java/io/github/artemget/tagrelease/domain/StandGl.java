@@ -24,19 +24,38 @@
 
 package io.github.artemget.tagrelease.domain;
 
+import io.github.artemget.entrys.Entry;
+import io.github.artemget.entrys.EntryException;
+import io.github.artemget.tagrelease.exception.DomainException;
+
 /**
- * Server at gitlab.
+ * Stand for customer.
  *
  * @since 0.1.0
  */
-public final class StandGitlab implements Stand {
-    @Override
-    public String name() {
-        throw new UnsupportedOperationException();
+public final class StandGl implements Stand {
+    private final String name;
+    private final Entry<Services> services;
+
+    public StandGl(final String name, final Entry<Services> services) {
+        this.name = name;
+        this.services = services;
     }
 
     @Override
-    public Services services() {
-        throw new UnsupportedOperationException();
+    public String name() {
+        return this.name;
+    }
+
+    @Override
+    public Services services() throws DomainException {
+        try {
+            return this.services.value();
+        } catch (final EntryException exception) {
+            throw new DomainException(
+                String.format("Failed to fetch services from stand:'%s'", this.name),
+                exception
+            );
+        }
     }
 }
