@@ -20,3 +20,6 @@ provider:
   #ID of project in which all repos is placed. Int value.
   #Example: 123
   project: ${PROJECT_ID}
+  #ID of repo where all stands are placed.
+  #Example: 123
+  release: ${RELEASE_ID}
