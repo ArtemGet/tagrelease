@@ -44,18 +44,28 @@ import org.cactoos.Scalar;
 @SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
 public final class ServiceEa implements Service {
     /**
-     * Application name.
+     * Repository ID.
+     */
+    private final String id;
+
+    /**
+     * Repository name.
      */
     private final String name;
 
     /**
-     * Application tag.
+     * Last tag.
      */
     private final String tag;
 
     //TODO: remove eager and req in ctor
-    public ServiceEa(final Entry<String> name, final Entry<Request> tag) throws EntryException, IOException {
+    public ServiceEa(
+        final Entry<String> id,
+        final Entry<String> name,
+        final Entry<Request> tag
+    ) throws EntryException, IOException {
         this(
+            id.value(),
             name.value(),
             Yaml.createYamlInput(
                     new EJsonStr(
@@ -78,9 +88,15 @@ public final class ServiceEa implements Service {
      * @param name Of application
      * @param tag Of application
      */
-    public ServiceEa(final String name, final String tag) {
+    public ServiceEa(final String id, final String name, final String tag) {
+        this.id = id;
         this.name = name;
         this.tag = tag;
+    }
+
+    @Override
+    public String id() {
+        return this.id;
     }
 
     @Override
@@ -98,7 +114,7 @@ public final class ServiceEa implements Service {
     @Override
     public Service tagged(final Scalar<String> rule) throws DomainException {
         try {
-            return new ServiceEa(this.name, rule.value());
+            return new ServiceEa(this.id, this.name, rule.value());
         } catch (final Exception exception) {
             throw new DomainException(
                 String.format("Failed to create tag for service: %s", this.name),

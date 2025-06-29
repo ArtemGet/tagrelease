@@ -35,6 +35,7 @@ import io.github.artemget.tagrelease.exception.DomainException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.json.JsonArray;
+import javax.json.JsonObject;
 import javax.json.JsonValue;
 
 /**
@@ -112,7 +113,12 @@ public final class ServicesAll implements Services {
 
     private Service parsed(final JsonValue service) throws DomainException {
         try {
-            return new ServiceEa(new EJsonStr(service.asJsonObject(), "name").value(), "");
+            JsonObject json = service.asJsonObject();
+            return new ServiceEa(
+                new EJsonStr(json, "id").value(),
+                new EJsonStr(json, "name").value(),
+                ""
+            );
         } catch (final EntryException exception) {
             throw new DomainException("Failed to parse service from gitlab", exception);
         }

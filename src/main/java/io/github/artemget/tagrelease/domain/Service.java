@@ -33,6 +33,7 @@ import org.cactoos.Scalar;
  * @since 0.1.0
  */
 public interface Service {
+    String id();
     /**
      * Returns application name.
      *
