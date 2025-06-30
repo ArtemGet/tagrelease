@@ -74,26 +74,23 @@ public final class ServicesGl implements Services {
         final Entry<String> branch,
         final Entry<String> token
     ) {
-        this(() ->
-                new EFetchArr(
-                    new JdkRequest(url.value()).uri()
-                        .path(
-                            String.format("api/v4/projects/%s/repository/tree", release.value())
-                        ).queryParam("ref", branch.value()).queryParam("per_page", "100")
-                        .back().method(Request.GET)
-                        .header("Accept", "application/json")
-                        .header("PRIVATE-TOKEN:", token.value())
-                ).value(),
+        this(() -> new EFetchArr(
+                new JdkRequest(
+                    String.format(
+                        "%s/api/v4/projects/%s/repository/tree?ref=%s&per_page=100",
+                        url.value(), release.value(), branch.value()
+                    )
+                ).method(Request.GET)
+                    .header("Accept", "application/json")
+                    .header("PRIVATE-TOKEN:", token.value())
+            ).value(),
             (service) -> new EFetchObj(
-                new JdkRequest(url.value()).uri()
-                    .path(
-                        String.format(
-                            "api/v4/projects/%s/repository/files/%s",
-                            release.value(),
-                            service.concat("%2Fvalues.yaml")
-                        )
-                    ).queryParam("ref", branch.value())
-                    .back().method(Request.GET)
+                new JdkRequest(
+                    String.format(
+                        "%s/api/v4/projects/%s/repository/files/%s?ref=%s",
+                        url.value(), release.value(), service.concat("%2Fvalues.yaml"), branch.value()
+                    )
+                ).method(Request.GET)
                     .header("Accept", "application/json")
                     .header("PRIVATE-TOKEN:", token.value())
             ).value()
