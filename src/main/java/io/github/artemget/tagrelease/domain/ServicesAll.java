@@ -40,7 +40,6 @@ import javax.json.JsonValue;
 
 /**
  * Fetch repositories(services) from gitlab project.
- *
  * @since 0.0.1
  */
 public final class ServicesAll implements Services {
@@ -54,19 +53,15 @@ public final class ServicesAll implements Services {
     ) {
         this(
             (service) -> new EFetchArr(
-                new JdkRequest(host.value()).uri()
-                    .path(String.format("api/v4/groups/%s/projects", project.value()))
-                    .queryParam("search", service)
-                    .back().method(Request.GET)
-                    .header("Accept", "application/json")
-                    .header("PRIVATE-TOKEN:", token.value())
+                new JdkRequest(
+                    String.format("%s/api/v4/groups/%s/projects?search=%s", host.value(), project.value(), service)
+                ).method(Request.GET).header("Accept", "application/json").header("PRIVATE-TOKEN", token.value())
             ).value(),
             () -> new EFetchArr(
-                new JdkRequest(host.value()).uri()
-                    .path(String.format("api/v4/groups/%s/projects", project.value()))
-                    .back().method(Request.GET)
+                new JdkRequest(String.format("%s/api/v4/groups/%s/projects", host.value(), project.value()))
+                    .method(Request.GET)
                     .header("Accept", "application/json")
-                    .header("PRIVATE-TOKEN:", token.value())
+                    .header("PRIVATE-TOKEN", token.value())
             ).value()
         );
     }
@@ -115,11 +110,11 @@ public final class ServicesAll implements Services {
         try {
             JsonObject json = service.asJsonObject();
             return new ServiceEa(
-                new EJsonStr(json, "id").value(),
+                String.valueOf(json.getInt("id")),
                 new EJsonStr(json, "name").value(),
                 ""
             );
-        } catch (final EntryException exception) {
+        } catch (final EntryException | ClassCastException exception) {
             throw new DomainException("Failed to parse service from gitlab", exception);
         }
     }
