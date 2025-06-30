@@ -82,7 +82,7 @@ public final class ServicesGl implements Services {
                     )
                 ).method(Request.GET)
                     .header("Accept", "application/json")
-                    .header("PRIVATE-TOKEN:", token.value())
+                    .header("PRIVATE-TOKEN", token.value())
             ).value(),
             (service) -> new EFetchObj(
                 new JdkRequest(
@@ -92,7 +92,7 @@ public final class ServicesGl implements Services {
                     )
                 ).method(Request.GET)
                     .header("Accept", "application/json")
-                    .header("PRIVATE-TOKEN:", token.value())
+                    .header("PRIVATE-TOKEN", token.value())
             ).value()
         );
     }

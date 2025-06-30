@@ -68,22 +68,21 @@ public final class StandsGl implements Stands {
     ) {
         this(
             () -> new EFetchArr(
-                new JdkRequest(url.value()).uri()
-                    .path(String.format("api/v4/projects/:%s/repository/branches", repo.value()))
-                    .back().method(Request.GET)
+                new JdkRequest(
+                    String.format("%s/api/v4/projects/:%s/repository/branches", url.value(), repo.value())
+                ).method(Request.GET)
                     .header("Accept", "application/json")
-                    .header("PRIVATE-TOKEN:", token.value())
+                    .header("PRIVATE-TOKEN", token.value())
             ).value(),
             (name) -> new EFetchObj(
-                new JdkRequest(url.value()).uri()
-                    .path(
-                        String.format(
-                            "api/v4/projects/%s/repository/branches/%s", repo.value(), name
-                        )
-                    ).back()
-                    .method(Request.GET)
+                new JdkRequest(
+                    String.format(
+                        "%s/api/v4/projects/%s/repository/branches/%s",
+                        url.value(), repo.value(), name
+                    )
+                ).method(Request.GET)
                     .header("Accept", "application/json")
-                    .header("PRIVATE-TOKEN:", token.value())
+                    .header("PRIVATE-TOKEN", token.value())
             ).value(),
             (branch) -> new ServicesGl(url, release, () -> branch, token)
         );

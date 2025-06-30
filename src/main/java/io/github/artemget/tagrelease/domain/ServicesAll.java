@@ -55,7 +55,9 @@ public final class ServicesAll implements Services {
             (service) -> new EFetchArr(
                 new JdkRequest(
                     String.format("%s/api/v4/groups/%s/projects?search=%s", host.value(), project.value(), service)
-                ).method(Request.GET).header("Accept", "application/json").header("PRIVATE-TOKEN", token.value())
+                ).method(Request.GET)
+                    .header("Accept", "application/json")
+                    .header("PRIVATE-TOKEN", token.value())
             ).value(),
             () -> new EFetchArr(
                 new JdkRequest(String.format("%s/api/v4/groups/%s/projects", host.value(), project.value()))
