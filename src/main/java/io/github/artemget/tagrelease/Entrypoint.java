@@ -30,9 +30,12 @@ import io.github.artemget.entrys.file.EVal;
 import io.github.artemget.entrys.operation.ESplit;
 import io.github.artemget.tagrelease.bot.Bot;
 import io.github.artemget.tagrelease.bot.BotReg;
+import io.github.artemget.tagrelease.command.CmdBuildTags;
 import io.github.artemget.tagrelease.command.CmdListServices;
 import io.github.artemget.tagrelease.command.CmdListServicesAll;
 import io.github.artemget.tagrelease.command.CmdListStands;
+import io.github.artemget.tagrelease.domain.Services;
+import io.github.artemget.tagrelease.domain.ServicesAll;
 import io.github.artemget.tagrelease.domain.Stands;
 import io.github.artemget.tagrelease.domain.StandsGl;
 import io.github.artemget.tagrelease.match.MatchAdmin;
@@ -61,6 +64,7 @@ public class Entrypoint {
         final Entry<String> repo = new EVal("provider.token");
         final Entry<String> token = new EVal("provider.token");
         final Entry<String> project = new EVal("provider.project");
+        final Services all = new ServicesAll(host, project, token);
         final Stands stands = new StandsGl(host, release, repo, token);
         new BotReg(
             new Bot(
@@ -71,7 +75,7 @@ public class Entrypoint {
                     new RouteDfs<>(
                         new RouteFork<>(
                             new MatchRegex<>("[Пп]окажи сервисы"),
-                            new CmdListServicesAll(host, project, token)
+                            new CmdListServicesAll(all)
                         ),
                         new RouteFork<>(
                             new MatchRegex<>("[Пп]окажи сервисы \\{([^{}]*)\\}$"),
@@ -80,6 +84,10 @@ public class Entrypoint {
                         new RouteFork<>(
                             new MatchRegex<>("[Пп]окажи стенды"),
                             new CmdListStands(stands)
+                        ),
+                        new RouteFork<>(
+                            new MatchRegex<>("[Сс]обери сервисы \\{([^{}]*)\\}$ префикс \\{([^{}]*)\\}$"),
+                            new CmdBuildTags(all)
                         )
 //                        new RouteFork<>(
 //                            new MatchRegex<>("Покажи стенд"),
