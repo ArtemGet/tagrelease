@@ -43,9 +43,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 /**
  * Entrypoint. Application starts here.
- *
- * @since 0.1.0
  * @checkstyle HideUtilityClassConstructorCheck (20 lines)
+ * @since 0.1.0
  */
 @SuppressWarnings(
     {
@@ -68,7 +67,7 @@ public class Entrypoint {
                 new EVal("bot.name"),
                 new EVal("bot.token"),
                 new RouteFork<>(
-                    new MatchAdmin(new ESplit(new EVal("admins"))),
+                    new MatchAdmin(new ESplit(new EVal("bot.admins"))),
                     new RouteDfs<>(
                         new RouteFork<>(
                             new MatchRegex<>("[Пп]окажи сервисы"),
