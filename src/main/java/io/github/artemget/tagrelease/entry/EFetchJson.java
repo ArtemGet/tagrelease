@@ -25,7 +25,6 @@
 package io.github.artemget.tagrelease.entry;
 
 import com.jcabi.http.Request;
-import com.jcabi.http.response.RestResponse;
 import io.github.artemget.entrys.Entry;
 import io.github.artemget.entrys.EntryException;
 import java.io.IOException;
@@ -43,9 +42,7 @@ public class EFetchJson implements Entry<JsonStructure> {
     @Override
     public JsonStructure value() throws EntryException {
         try {
-            return Json.createReader(
-                new StringReader(request.fetch().as(RestResponse.class).body())
-            ).read();
+            return Json.createReader(new StringReader(request.fetch().body())).read();
         } catch (final IOException exception) {
             throw new EntryException(
                 String.format("Failed to fetch json array from resource:%s", this.request.uri()),
