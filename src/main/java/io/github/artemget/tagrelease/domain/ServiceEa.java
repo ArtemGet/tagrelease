@@ -31,6 +31,7 @@ import io.github.artemget.entrys.Entry;
 import io.github.artemget.entrys.EntryException;
 import io.github.artemget.entrys.fake.EFake;
 import io.github.artemget.entrys.json.EJsonStr;
+import io.github.artemget.tagrelease.exception.DomainException;
 import java.io.IOException;
 import java.io.StringReader;
 import javax.json.Json;
@@ -103,11 +104,14 @@ public final class ServiceEa implements Service {
     }
 
     @Override
-    public String tag() {
+    public String tag() throws DomainException {
         try {
             return this.tag.value();
-        } catch (EntryException e) {
-            throw new RuntimeException(e);
+        } catch (final EntryException exception) {
+            throw new DomainException(
+                String.format("Failed ro fetch tag for service:'%s'", this.name()),
+                exception
+            );
         }
     }
 }
