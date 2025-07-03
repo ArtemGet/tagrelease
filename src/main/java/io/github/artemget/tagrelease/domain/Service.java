@@ -46,13 +46,5 @@ public interface Service {
      *
      * @return Tag
      */
-    String tag();
-
-    /**
-     * Builds new tag.
-     *
-     * @param rule To build tag
-     * @return Service with a new tag
-     */
-    Service tagged(Scalar<String> rule) throws DomainException;
+    String tag() throws DomainException;
 }

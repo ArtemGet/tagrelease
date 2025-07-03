@@ -29,16 +29,14 @@ import com.jcabi.http.Request;
 import com.jcabi.http.response.RestResponse;
 import io.github.artemget.entrys.Entry;
 import io.github.artemget.entrys.EntryException;
+import io.github.artemget.entrys.fake.EFake;
 import io.github.artemget.entrys.json.EJsonStr;
-import io.github.artemget.tagrelease.exception.DomainException;
 import java.io.IOException;
 import java.io.StringReader;
 import javax.json.Json;
-import org.cactoos.Scalar;
 
 /**
  * Application's source code in gitlab.
- *
  * @since 0.1.0
  */
 @SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
@@ -56,9 +54,8 @@ public final class ServiceEa implements Service {
     /**
      * Last tag.
      */
-    private final String tag;
+    private final Entry<String> tag;
 
-    //TODO: remove eager and req in ctor
     public ServiceEa(
         final Entry<String> id,
         final Entry<String> name,
@@ -67,28 +64,29 @@ public final class ServiceEa implements Service {
         this(
             id.value(),
             name.value(),
-            Yaml.createYamlInput(
-                    new EJsonStr(
-                        Json.createReader(
-                            new StringReader(
-                                tag.value().fetch().as(RestResponse.class).body()
-                            )
-                        ).readObject()
-                        , "content"
-                    ).value()
-                ).readYamlMapping()
-                .yamlMapping("image")
-                .string("tag")
+            new EFake<>(
+                Yaml.createYamlInput(
+                        new EJsonStr(
+                            Json.createReader(
+                                new StringReader(
+                                    tag.value().fetch().as(RestResponse.class).body()
+                                )
+                            ).readObject()
+                            , "content"
+                        ).value()
+                    ).readYamlMapping()
+                    .yamlMapping("image")
+                    .string("tag")
+            )
         );
     }
 
     /**
      * Main ctor.
-     *
      * @param name Of application
      * @param tag Of application
      */
-    public ServiceEa(final String id, final String name, final String tag) {
+    public ServiceEa(final String id, final String name, final Entry<String> tag) {
         this.id = id;
         this.name = name;
         this.tag = tag;
@@ -106,20 +104,10 @@ public final class ServiceEa implements Service {
 
     @Override
     public String tag() {
-        return this.tag;
-    }
-
-    // @checkstyle IllegalCatchCheck (50 lines)
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    @Override
-    public Service tagged(final Scalar<String> rule) throws DomainException {
         try {
-            return new ServiceEa(this.id, this.name, rule.value());
-        } catch (final Exception exception) {
-            throw new DomainException(
-                String.format("Failed to create tag for service: %s", this.name),
-                exception
-            );
+            return this.tag.value();
+        } catch (EntryException e) {
+            throw new RuntimeException(e);
         }
     }
 }
