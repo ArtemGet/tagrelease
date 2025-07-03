@@ -96,8 +96,16 @@ public class CmdBuildTags implements Cmd<Update, AbsSender> {
             }
             succeed.add(tag);
         }
-        return new SendMessageWrap<>(
-            new SendMessage(update.getMessage().getChatId().toString(), "test")
+        final SendMessage message = new SendMessage(
+            update.getMessage().getChatId().toString(),
+            String.format(
+                "Собраны сервисы:\n%s\nОшибка сборки сервисов:\n%s",
+                new Tag.Printed(succeed).asString(),
+                String.join("\n", failed)
+            )
         );
+        message.setReplyToMessageId(update.getMessage().getMessageId());
+        message.enableMarkdownV2(true);
+        return new SendMessageWrap<>(message);
     }
 }

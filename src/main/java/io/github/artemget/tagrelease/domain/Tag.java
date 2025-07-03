@@ -24,8 +24,36 @@
 
 package io.github.artemget.tagrelease.domain;
 
+import java.util.List;
+import org.cactoos.Text;
 public interface Tag {
     String repo();
+
     String name();
+
     String branch();
+
+    final class Printed implements Text {
+        /**
+         * Tags.
+         */
+        private final List<Tag> tags;
+
+        /**
+         * Main ctor.
+         * @param tags Built
+         */
+        public Printed(final List<Tag> tags) {
+            this.tags = tags;
+        }
+
+        @Override
+        public String asString() {
+            final StringBuilder string = new StringBuilder();
+            for (final Tag tag : this.tags) {
+                string.append(String.format("```%s:%s```\n", tag.repo(), tag.name()));
+            }
+            return string.toString();
+        }
+    }
 }
