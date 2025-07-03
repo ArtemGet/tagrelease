@@ -85,8 +85,8 @@ public class Entrypoint {
                             new CmdListStands(stands)
                         ),
                         new RouteFork<>(
-                            new MatchRegex<>("[Сс]обери сервисы \\{([^{}]*)\\}$ префикс \\{([^{}]*)\\}$"),
-                            new CmdBuildTags(all)
+                            new MatchRegex<>("[Сс]обери сервисы \\{([^{}]*)\\}\\s+префикс\\s+\\{([^{}]*)\\}$"),
+                            new CmdBuildTags(host, project, token)
                         )
 //                        new RouteFork<>(
 //                            new MatchRegex<>("Покажи стенд"),
