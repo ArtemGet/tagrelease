@@ -41,6 +41,7 @@ import io.github.artemget.teleroute.send.Send;
 import io.github.artemget.teleroute.telegrambots.send.SendMessageWrap;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -68,15 +69,30 @@ public class CmdBuildTags implements Cmd<Update, AbsSender> {
     @Override
     public Send<AbsSender> execute(Update update) throws CmdException {
         final List<String> names;
-        final String branch = "develop";
-        final String prefix = "v4.3.1.*";
+        final String branch;
+        final String prefix;
+        final String[] values = StringUtils.substringsBetween(update.getMessage().getText(), "{", "}");
         try {
-            names = new ESplit(new EUnwrap(update.getMessage().getText()), ",").value();
+            names = new ESplit(new EUnwrap(values[0]), ",").value();
         } catch (final EntryException exception) {
             throw new CmdException("Failed to parse service names for tag build", exception);
         }
-        List<Tag> succeed = new ArrayList<>();
-        List<String> failed = new ArrayList<>();
+        try {
+            prefix = new EUnwrap(values[1]).value();
+        } catch (final EntryException exception) {
+            throw new CmdException("Failed to parse prefix name for tag build", exception);
+        }
+        try {
+            if (values.length >= 3) {
+                branch = new EUnwrap(values[2]).value();
+            } else {
+                branch = "develop";
+            }
+        } catch (final EntryException exception) {
+            throw new CmdException("Failed to parse branch name for tag build", exception);
+        }
+        final List<Tag> succeed = new ArrayList<>();
+        final List<String> failed = new ArrayList<>();
         for (final String name : names) {
             Service service;
             try {
@@ -86,9 +102,9 @@ public class CmdBuildTags implements Cmd<Update, AbsSender> {
                 failed.add(name);
                 continue;
             }
-            Tag tag;
+            final Tag tag;
             try {
-                tag = this.tags.buildNew(service.id(), "develop", prefix);
+                tag = this.tags.buildNew(service.id(), branch, prefix);
             } catch (final DomainException exception) {
                 log.error("Failed to build tag for service:'{}'", name, exception);
                 failed.add(name);
