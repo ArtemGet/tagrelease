@@ -26,25 +26,21 @@ package io.github.artemget.tagrelease.domain;
 
 import io.github.artemget.tagrelease.exception.DomainException;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.cactoos.Text;
 
 /**
  * Applications.
- *
  * @since 0.1.0
  */
 public interface Services {
     /**
      * Returns all services from stand.
-     *
      * @return Services
      */
     List<Service> services() throws DomainException;
 
     /**
      * Returns service from stand by it's name.
-     *
      * @param name Of service
      * @return Service
      */
@@ -53,7 +49,6 @@ public interface Services {
     /**
      * Printed Services.
      * Format: ```java %s:%s```\n
-     *
      * @since 0.1.0
      */
     final class Printed implements Text {
@@ -64,7 +59,6 @@ public interface Services {
 
         /**
          * Main ctor.
-         *
          * @param services Services
          */
         public Printed(final Services services) {
@@ -72,17 +66,12 @@ public interface Services {
         }
 
         @Override
-        public String asString() throws DomainException{
-            return this.services.services().stream()
-                .map(
-                    service ->
-                        String.format(
-                            "```java %s:%s```\n    ",
-                            service.name(),
-                            service.tag()
-                        )
-                )
-                .collect(Collectors.joining());
+        public String asString() throws DomainException {
+            final StringBuilder string = new StringBuilder();
+            for (final Service service : this.services.services()) {
+                string.append(String.format("```java %s:%s```\n", service.name(), service.tag()));
+            }
+            return string.toString();
         }
     }
 }

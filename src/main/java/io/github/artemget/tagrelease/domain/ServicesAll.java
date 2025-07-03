@@ -114,7 +114,7 @@ public final class ServicesAll implements Services {
             return new ServiceEa(
                 String.valueOf(json.getInt("id")),
                 new EJsonStr(json, "name").value(),
-                ""
+                () -> ""
             );
         } catch (final EntryException | ClassCastException exception) {
             throw new DomainException("Failed to parse service from gitlab", exception);
