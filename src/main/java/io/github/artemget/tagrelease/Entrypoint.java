@@ -61,11 +61,10 @@ public class Entrypoint {
     public static void main(final String[] args) throws EntryException, TelegramApiException {
         final Entry<String> host = new EVal("provider.host");
         final Entry<String> release = new EVal("provider.release");
-        final Entry<String> repo = new EVal("provider.token");
         final Entry<String> token = new EVal("provider.token");
         final Entry<String> project = new EVal("provider.project");
         final Services all = new ServicesAll(host, project, token);
-        final Stands stands = new StandsGl(host, release, repo, token);
+        final Stands stands = new StandsGl(host, release, token);
         new BotReg(
             new Bot(
                 new EVal("bot.name"),

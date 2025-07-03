@@ -39,7 +39,6 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 
 /**
  * Lists available stands and it's services.
- *
  * @since 0.1.0
  */
 public final class CmdListStands implements Cmd<Update, AbsSender> {
@@ -74,7 +73,10 @@ public final class CmdListStands implements Cmd<Update, AbsSender> {
         }
         final SendMessage message = new SendMessage(
             update.getMessage().getChatId().toString(),
-            stands.stream().map(Stand::name).collect(Collectors.joining("\n"))
+            String.format(
+                "```\n%s```",
+                stands.stream().map(Stand::name).collect(Collectors.joining("\n"))
+            )
         );
         message.setReplyToMessageId(update.getMessage().getMessageId());
         message.enableMarkdownV2(true);
