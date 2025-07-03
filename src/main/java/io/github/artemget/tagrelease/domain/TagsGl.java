@@ -49,7 +49,7 @@ public final class TagsGl implements Tags {
                 new EFetchArr(
                     new JdkRequest(
                         String.format(
-                            "%s/api/v4/projects/%s/repository/tags?search=^%s",
+                            "%s/api/v4/projects/%s/repository/tags?search=%%5E%s",
                             url.value(),
                             tag.repo(),
                             tag.name().replace(".*", "")
@@ -84,21 +84,6 @@ public final class TagsGl implements Tags {
         return null;
     }
 
-    Map<Character, Integer> origin(String p) {
-        Map<Character, Integer> r = new HashMap<>();
-        for(int i=0;i<p.length();i++) {
-            r.compute(
-                p.charAt(i),
-                (key, val) -> {
-                    if(val == null) {
-                        return 1;
-                    }
-                    return val + 1;
-                }
-            );
-        }
-    }
-
     @Override
     public Tag current(final String serviceId, final String branch, final String prefix) throws DomainException {
         final JsonArray response;
@@ -121,10 +106,10 @@ public final class TagsGl implements Tags {
     }
 
     public static JsonObject found(JsonArray array, String prefix) throws DomainException {
-
+        return null;
     }
 
     public static String trimmed(String cell) {
-
+        return null;
     }
 }
