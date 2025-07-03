@@ -25,6 +25,7 @@
 package io.github.artemget.tagrelease.domain;
 
 import com.amihaiemil.eoyaml.Yaml;
+import com.amihaiemil.eoyaml.exceptions.YamlIndentationException;
 import com.jcabi.http.Request;
 import com.jcabi.http.request.JdkRequest;
 import io.github.artemget.entrys.Entry;
@@ -40,10 +41,10 @@ import java.util.List;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * Applications from gitlab.
- *
  * @since 0.1.0
  */
 public final class ServicesGl implements Services {
@@ -59,10 +60,8 @@ public final class ServicesGl implements Services {
      */
     private final EFunc<String, JsonObject> tag;
 
-
     /**
      * Ctor configures https req to gitlab services.
-     *
      * @param url Of gitlab
      * @param release Where to search services
      * @param branch Project which services belong to
@@ -99,7 +98,6 @@ public final class ServicesGl implements Services {
 
     /**
      * Main ctor.
-     *
      * @param services At gitlab
      */
     public ServicesGl(final Entry<JsonArray> services, final EFunc<String, JsonObject> tag) {
@@ -130,37 +128,39 @@ public final class ServicesGl implements Services {
 
     @Override
     public Service service(final String name) throws DomainException {
-        final JsonObject json;
-        try {
-            json = this.tag.apply(name);
-        } catch (EntryException exception) {
-            throw new DomainException(
-                String.format("Failed to fetch '%s' service from stand", name),
-                exception
-            );
-        }
-        final String content;
-        try {
-            content = new EJsonStr(json, "content").value();
-        } catch (final EntryException exception) {
-            throw new DomainException(
-                String.format("Failed to get content for service:'%s' from:'%s'", name, json),
-                exception
-            );
-        }
-        try {
-            return new ServiceEa(
-                "",
-                name,
-                Yaml.createYamlInput(content).readYamlMapping()
-                    .yamlMapping("image")
-                    .string("tag")
-            );
-        } catch (final IOException exception) {
-            throw new DomainException(
-                String.format("Failed to get content for service:'%s' from:'%s'", name, json),
-                exception
-            );
-        }
+        return new ServiceEa(
+            "",
+            name,
+            () -> {
+                final JsonObject json;
+                try {
+                    json = this.tag.apply(name);
+                } catch (final EntryException exception) {
+                    throw new EntryException(
+                        String.format("Failed to fetch '%s' service from stand", name),
+                        exception
+                    );
+                }
+                final String content;
+                try {
+                    content = new String(Base64.decodeBase64(new EJsonStr(json, "content").value()));
+                } catch (final EntryException exception) {
+                    throw new EntryException(
+                        String.format("Failed to get content for service:'%s' from:'%s'", name, json),
+                        exception
+                    );
+                }
+                try {
+                    return Yaml.createYamlInput(content).readYamlMapping()
+                        .yamlMapping("image")
+                        .string("tag");
+                } catch (final IOException | YamlIndentationException exception) {
+                    throw new EntryException(
+                        String.format("Failed to get content for service:'%s' from:'%s'", name, json),
+                        exception
+                    );
+                }
+            }
+        );
     }
 }

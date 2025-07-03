@@ -41,7 +41,6 @@ import javax.json.JsonValue;
 
 /**
  * Servers.
- *
  * @since 0.1.0
  */
 public final class StandsGl implements Stands {
@@ -59,17 +58,15 @@ public final class StandsGl implements Stands {
 
     private final EFunc<String, Services> services;
 
-
     public StandsGl(
         final Entry<String> url,
         final Entry<String> release,
-        final Entry<String> repo,
         final Entry<String> token
     ) {
         this(
             () -> new EFetchArr(
                 new JdkRequest(
-                    String.format("%s/api/v4/projects/:%s/repository/branches", url.value(), repo.value())
+                    String.format("%s/api/v4/projects/%s/repository/branches", url.value(), release.value())
                 ).method(Request.GET)
                     .header("Accept", "application/json")
                     .header("PRIVATE-TOKEN", token.value())
@@ -78,7 +75,7 @@ public final class StandsGl implements Stands {
                 new JdkRequest(
                     String.format(
                         "%s/api/v4/projects/%s/repository/branches/%s",
-                        url.value(), repo.value(), name
+                        url.value(), release.value(), name
                     )
                 ).method(Request.GET)
                     .header("Accept", "application/json")
@@ -103,12 +100,15 @@ public final class StandsGl implements Stands {
         final JsonArray response;
         try {
             response = this.stands.value();
-        } catch (EntryException exception) {
+        } catch (final EntryException exception) {
             throw new DomainException("Failed to fetch all services from gitlab", exception);
         }
         final List<Stand> stands = new ArrayList<>();
         for (final JsonValue branch : response) {
-            stands.add(this.enriched(branch.asJsonObject()));
+            final Stand stand = this.enriched(branch.asJsonObject());
+            if (!"main".equals(stand.name())) {
+                stands.add(stand);
+            }
         }
         return stands;
     }
