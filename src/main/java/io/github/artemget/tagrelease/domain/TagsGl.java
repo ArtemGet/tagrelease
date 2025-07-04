@@ -29,15 +29,15 @@ import com.jcabi.http.request.JdkRequest;
 import io.github.artemget.entrys.Entry;
 import io.github.artemget.entrys.EntryException;
 import io.github.artemget.tagrelease.entry.EFetchArr;
+import io.github.artemget.tagrelease.entry.EFetchObj;
 import io.github.artemget.tagrelease.entry.EFunc;
 import io.github.artemget.tagrelease.exception.DomainException;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.json.JsonValue;
 
 public final class TagsGl implements Tags {
     private final EFunc<Tag, JsonArray> tag;
-    private final EFunc<Tag, JsonArray> create;
+    private final EFunc<Tag, JsonObject> create;
 
     public TagsGl(
         final Entry<String> url,
@@ -58,13 +58,14 @@ public final class TagsGl implements Tags {
                         .header("PRIVATE-TOKEN", token.value())
                 ).value(),
             (tag) ->
-                new EFetchArr(
+                new EFetchObj(
                     new JdkRequest(
                         String.format(
                             "%s/api/v4/projects/%s/repository/tags?ref=%s&tag_name=%s",
                             url.value(),
                             tag.repo(),
-                            tag.name().replace(".*", "")
+                            tag.branch(),
+                            tag.name()
                         )
                     ).method(Request.POST)
                         .header("Accept", "application/json")
@@ -73,58 +74,81 @@ public final class TagsGl implements Tags {
         );
     }
 
-    public TagsGl(final EFunc<Tag, JsonArray> tag, final EFunc<Tag, JsonArray> create) {
+    public TagsGl(final EFunc<Tag, JsonArray> tag, final EFunc<Tag, JsonObject> create) {
         this.tag = tag;
         this.create = create;
     }
 
     @Override
     public Tag buildNew(final String serviceId, final String branch, final String prefix) throws DomainException {
-        final JsonArray response;
+        final Tag current = this.current(serviceId, branch, prefix);
+        final JsonObject created;
         try {
-            response = this.tag.apply(new TagEa(serviceId, prefix, branch));
-        } catch (final EntryException exception) {
-            throw new DomainException(
-                String.format(
-                    "Failed to fetch tag with prefix:'%s' for service:'%s' from branch:'%s'",
-                    prefix, serviceId, branch
-                ),
-                exception
+            created = this.create.apply(
+                new TagEa(
+                    current.repo(),
+                    TagsGl.next(current.name(), prefix),
+                    current.branch(),
+                    current.fromCommit(),
+                    "" //TODO: fetch all PRs from current tag's commit to HEAD branch commit.
+                )
             );
-        }
-        for (final JsonValue value : response) {
-            String tag = value.asJsonObject().getString("name");
-
-        }
-        return null;
-    }
-
-    @Override
-    public Tag current(final String serviceId, final String branch, final String prefix) throws DomainException {
-        final JsonArray response;
-        try {
-            response = this.tag.apply(new TagEa(serviceId, prefix, branch));
         } catch (final EntryException exception) {
             throw new DomainException(
                 String.format(
-                    "Failed to fetch tag with prefix:'%s' for service:'%s' from branch:'%s'",
-                    prefix, serviceId, branch
+                    "Failed to create tag with prefix:'%s' for service:'%s' from branch:'%s'. Latest tag:%s",
+                    prefix, serviceId, branch, current.name()
                 ),
                 exception
             );
         }
         return new TagEa(
             serviceId,
-            TagsGl.found(response, prefix).getString("name"),
-            branch
+            created.getString("name"),
+            branch,
+            created.getJsonObject("commit").getString("id"),
+            created.getJsonObject("commit").getString("message")
         );
     }
 
-    public static JsonObject found(JsonArray array, String prefix) throws DomainException {
-        return null;
+    @Override
+    public Tag current(final String serviceId, final String branch, final String prefix) throws DomainException {
+        final JsonArray response;
+        try {
+            response = this.tag.apply(new TagEa(serviceId, prefix, branch, "", ""));
+        } catch (final EntryException exception) {
+            throw new DomainException(
+                String.format(
+                    "Failed to fetch tag with prefix:'%s' for service:'%s' from branch:'%s'",
+                    prefix, serviceId, branch
+                ),
+                exception
+            );
+        }
+        final JsonObject current = response.getJsonObject(0);
+        return new TagEa(
+            serviceId,
+            current.getString("name"),
+            branch,
+            current.getJsonObject("commit").getString("id"),
+            current.getJsonObject("commit").getString("message")
+        );
     }
 
-    public static String trimmed(String cell) {
-        return null;
+    public static String next(final String current, final String prefix) {
+        final String trimmed = prefix.replace("*", "");
+        final StringBuilder next = new StringBuilder();
+        for (int index = 0; index < current.toCharArray().length; index++) {
+            if (trimmed.length() == index) {
+                next.append(Character.getNumericValue(current.charAt(index)) + 1);
+                continue;
+            }
+            if (trimmed.length() < index && Character.isDigit(current.charAt(index))) {
+                next.append('0');
+            } else {
+                next.append(current.charAt(index));
+            }
+        }
+        return next.toString();
     }
 }
