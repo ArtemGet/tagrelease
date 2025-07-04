@@ -31,14 +31,13 @@ import io.github.artemget.entrys.EntryException;
 import io.github.artemget.tagrelease.entry.EFetchArr;
 import io.github.artemget.tagrelease.entry.EFunc;
 import io.github.artemget.tagrelease.exception.DomainException;
-import java.util.HashMap;
-import java.util.Map;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
 public final class TagsGl implements Tags {
     private final EFunc<Tag, JsonArray> tag;
+    private final EFunc<Tag, JsonArray> create;
 
     public TagsGl(
         final Entry<String> url,
@@ -57,12 +56,26 @@ public final class TagsGl implements Tags {
                     ).method(Request.GET)
                         .header("Accept", "application/json")
                         .header("PRIVATE-TOKEN", token.value())
+                ).value(),
+            (tag) ->
+                new EFetchArr(
+                    new JdkRequest(
+                        String.format(
+                            "%s/api/v4/projects/%s/repository/tags?ref=%s&tag_name=%s",
+                            url.value(),
+                            tag.repo(),
+                            tag.name().replace(".*", "")
+                        )
+                    ).method(Request.POST)
+                        .header("Accept", "application/json")
+                        .header("PRIVATE-TOKEN", token.value())
                 ).value()
         );
     }
 
-    public TagsGl(final EFunc<Tag, JsonArray> tag) {
+    public TagsGl(final EFunc<Tag, JsonArray> tag, final EFunc<Tag, JsonArray> create) {
         this.tag = tag;
+        this.create = create;
     }
 
     @Override
@@ -80,6 +93,8 @@ public final class TagsGl implements Tags {
             );
         }
         for (final JsonValue value : response) {
+            String tag = value.asJsonObject().getString("name");
+
         }
         return null;
     }
