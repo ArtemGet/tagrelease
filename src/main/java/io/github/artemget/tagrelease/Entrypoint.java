@@ -31,6 +31,8 @@ import io.github.artemget.entrys.operation.ESplit;
 import io.github.artemget.tagrelease.bot.Bot;
 import io.github.artemget.tagrelease.bot.BotReg;
 import io.github.artemget.tagrelease.command.CmdBuildTags;
+import io.github.artemget.tagrelease.command.CmdEcho;
+import io.github.artemget.tagrelease.command.CmdEchoReply;
 import io.github.artemget.tagrelease.command.CmdListServices;
 import io.github.artemget.tagrelease.command.CmdListServicesAll;
 import io.github.artemget.tagrelease.command.CmdListStands;
@@ -39,6 +41,7 @@ import io.github.artemget.tagrelease.domain.ServicesAll;
 import io.github.artemget.tagrelease.domain.Stands;
 import io.github.artemget.tagrelease.domain.StandsGl;
 import io.github.artemget.tagrelease.match.MatchAdmin;
+import io.github.artemget.tagrelease.match.MatchReply;
 import io.github.artemget.teleroute.match.MatchRegex;
 import io.github.artemget.teleroute.route.RouteDfs;
 import io.github.artemget.teleroute.route.RouteFork;
@@ -72,6 +75,14 @@ public class Entrypoint {
                 new RouteFork<>(
                     new MatchAdmin(new ESplit(new EVal("bot.admins"))),
                     new RouteDfs<>(
+                        new RouteFork<>(
+                            new MatchRegex<>("[Э]эхо"),
+                            new RouteFork<>(
+                                new MatchReply(),
+                                new CmdEchoReply(),
+                                new CmdEcho()
+                            )
+                        ),
                         new RouteFork<>(
                             new MatchRegex<>("[Пп]окажи сервисы"),
                             new CmdListServicesAll(all)
