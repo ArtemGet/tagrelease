@@ -28,11 +28,15 @@ public final class TagEa implements Tag {
     private final String repo;
     private final String name;
     private final String branch;
+    private final String commit;
+    private final String message;
 
-    public TagEa(final String repo, final String name, final String branch) {
+    public TagEa(final String repo, final String name, final String branch, final String commit, final String message) {
         this.repo = repo;
         this.name = name;
         this.branch = branch;
+        this.commit = commit;
+        this.message = message;
     }
 
     @Override
@@ -48,5 +52,15 @@ public final class TagEa implements Tag {
     @Override
     public String branch() {
         return this.branch;
+    }
+
+    @Override
+    public String fromCommit() {
+        return this.commit;
+    }
+
+    @Override
+    public String message() {
+        return this.message;
     }
 }

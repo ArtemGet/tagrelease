@@ -33,6 +33,10 @@ public interface Tag {
 
     String branch();
 
+    String fromCommit();
+
+    String message();
+
     final class Printed implements Text {
         /**
          * Tags.
