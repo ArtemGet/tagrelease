@@ -37,6 +37,8 @@ public interface Tag {
 
     String message();
 
+    String created();
+
     final class Printed implements Text {
         /**
          * Tags.
