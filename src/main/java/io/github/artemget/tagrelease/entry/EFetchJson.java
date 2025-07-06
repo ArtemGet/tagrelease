@@ -24,59 +24,28 @@
 
 package io.github.artemget.tagrelease.entry;
 
+import com.jcabi.http.Request;
 import io.github.artemget.entrys.Entry;
 import io.github.artemget.entrys.EntryException;
-import java.util.Set;
-import java.util.regex.PatternSyntaxException;
+import java.io.IOException;
+import java.io.StringReader;
+import javax.json.Json;
+import javax.json.JsonStructure;
 
-/**
- * Split entry.
- *
- * @since 0.1.0
- */
-public final class ESplit implements Entry<Set<String>> {
-    /**
-     * Origin string entry.
-     */
-    private final Entry<String> origin;
+public class EFetchJson implements Entry<JsonStructure> {
+    private final Request request;
 
-    /**
-     * Split delimiter.
-     */
-    private final String delimiter;
-
-    /**
-     * Creates split entry with default ; delimiter.
-     *
-     * @param origin Entry
-     */
-    public ESplit(final Entry<String> origin) {
-        this(origin, ";");
-    }
-
-    /**
-     * Main ctor.
-     *
-     * @param origin Entry
-     * @param delimiter For splitting
-     */
-    public ESplit(final Entry<String> origin, final String delimiter) {
-        this.origin = origin;
-        this.delimiter = delimiter;
+    public EFetchJson(final Request request) {
+        this.request = request;
     }
 
     @Override
-    public Set<String> value() throws EntryException {
-        final String value = this.origin.value();
+    public JsonStructure value() throws EntryException {
         try {
-            return Set.of(value.split(this.delimiter));
-        } catch (final PatternSyntaxException exception) {
+            return Json.createReader(new StringReader(request.fetch().body())).read();
+        } catch (final IOException exception) {
             throw new EntryException(
-                String.format(
-                    "Wrong pattern delimiter: %s for entry value: %s",
-                    this.delimiter,
-                    value
-                ),
+                String.format("Failed to fetch json array from resource:%s", this.request.uri()),
                 exception
             );
         }

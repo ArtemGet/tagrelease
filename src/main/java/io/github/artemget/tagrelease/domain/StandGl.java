@@ -24,63 +24,37 @@
 
 package io.github.artemget.tagrelease.domain;
 
+import io.github.artemget.entrys.Entry;
+import io.github.artemget.entrys.EntryException;
 import io.github.artemget.tagrelease.exception.DomainException;
-import org.cactoos.Text;
 
 /**
- * Server.
+ * Stand for customer.
  *
  * @since 0.1.0
  */
-public interface Stand {
-    /**
-     * Returns server name.
-     *
-     * @return Name
-     */
-    String name();
+public final class StandGl implements Stand {
+    private final String name;
+    private final Entry<Services> services;
 
-    /**
-     * Returns server's services.
-     *
-     * @return Services
-     */
-    Services services() throws DomainException;
+    public StandGl(final String name, final Entry<Services> services) {
+        this.name = name;
+        this.services = services;
+    }
 
-    /**
-     * Printed server.
-     * Format:
-     *  Стенд: %s
-     *  Сервисы:
-     *      %s
-     *
-     * @since 0.1.0
-     */
-    final class Printed implements Text {
-        /**
-         * Server.
-         */
-        private final Stand stand;
+    @Override
+    public String name() {
+        return this.name;
+    }
 
-        /**
-         * Main ctor.
-         *
-         * @param stand Stand
-         */
-        public Printed(final Stand stand) {
-            this.stand = stand;
-        }
-
-        @Override
-        public String asString() throws DomainException {
-            return String.format(
-                """
-                    Стенд: %s
-                    Сервисы:
-                        %s
-                    """,
-                this.stand.name(),
-                new Services.Printed(this.stand.services())
+    @Override
+    public Services services() throws DomainException {
+        try {
+            return this.services.value();
+        } catch (final EntryException exception) {
+            throw new DomainException(
+                String.format("Failed to fetch services from stand:'%s'", this.name),
+                exception
             );
         }
     }

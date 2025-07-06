@@ -22,58 +22,31 @@
  * SOFTWARE.
  */
 
-package io.github.artemget.tagrelease.domain;
+package io.github.artemget.tagrelease.entry;
 
-import io.github.artemget.tagrelease.exception.DomainException;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.cactoos.Text;
+import com.jcabi.http.Request;
+import io.github.artemget.entrys.Entry;
+import io.github.artemget.entrys.EntryException;
+import javax.json.JsonObject;
+import javax.json.JsonStructure;
 
-/**
- * Servers.
- *
- * @since 0.1.0
- */
-public interface Stands {
-    /**
-     * Returns available servers.
-     *
-     * @return Servers
-     */
-    List<Stand> stands() throws DomainException;
+public class EFetchObj implements Entry<JsonObject> {
+    private final Entry<JsonStructure> origin;
 
-    /**
-     * Returns server by it's name.
-     *
-     * @param name Name
-     * @return Server
-     */
-    Stand stand(String name) throws DomainException;
+    public EFetchObj(final Request request) {
+        this(new EFetchJson(request));
+    }
 
-    /**
-     * Printed servers.
-     *
-     * @since 0.1.0
-     */
-    final class Printed implements Text {
-        /**
-         * Stands.
-         */
-        private final Stands stands;
+    public EFetchObj(final Entry<JsonStructure> origin) {
+        this.origin = origin;
+    }
 
-        /**
-         * Main ctor.
-         * @param stands Stands
-         */
-        public Printed(final Stands stands) {
-            this.stands = stands;
-        }
-
-        @Override
-        public String asString() throws DomainException {
-            return this.stands.stands().stream()
-                .map(st -> new Stand.Printed(st).toString())
-                .collect(Collectors.joining());
+    @Override
+    public JsonObject value() throws EntryException {
+        try {
+            return this.origin.value().asJsonObject();
+        } catch (final ClassCastException exception) {
+            throw new EntryException("Failed to map json structure to JsonObject", exception);
         }
     }
 }

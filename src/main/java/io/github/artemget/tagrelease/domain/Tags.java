@@ -24,19 +24,9 @@
 
 package io.github.artemget.tagrelease.domain;
 
-/**
- * Server at gitlab.
- *
- * @since 0.1.0
- */
-public final class StandGitlab implements Stand {
-    @Override
-    public String name() {
-        throw new UnsupportedOperationException();
-    }
+import io.github.artemget.tagrelease.exception.DomainException;
+public interface Tags {
+    Tag buildNew(final String serviceId, final String branch, final String prefix) throws DomainException;
 
-    @Override
-    public Services services() {
-        throw new UnsupportedOperationException();
-    }
+    Tag current(final String serviceId, final String branch, final String prefix) throws DomainException;
 }

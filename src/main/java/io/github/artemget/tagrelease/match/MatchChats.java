@@ -28,7 +28,7 @@ import io.github.artemget.entrys.Entry;
 import io.github.artemget.entrys.EntryException;
 import io.github.artemget.entrys.EntryExceptionUnchecked;
 import io.github.artemget.teleroute.update.Wrap;
-import java.util.Set;
+import java.util.List;
 import java.util.function.Predicate;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -41,14 +41,14 @@ public final class MatchChats implements Predicate<Wrap<Update>> {
     /**
      * Chat ids.
      */
-    private final Entry<Set<String>> chats;
+    private final Entry<List<String>> chats;
 
     /**
      * Main ctor.
      *
      * @param chats Where bot is used.
      */
-    public MatchChats(final Entry<Set<String>> chats) {
+    public MatchChats(final Entry<List<String>> chats) {
         this.chats = chats;
     }
 

@@ -22,23 +22,14 @@
  * SOFTWARE.
  */
 
-package io.github.artemget.tagrelease.domain;
+package io.github.artemget.tagrelease.match;
 
-import java.util.List;
-
-/**
- * Applications from gitlab.
- *
- * @since 0.1.0
- */
-public final class ServicesGitlab implements Services {
+import io.github.artemget.teleroute.update.Wrap;
+import java.util.function.Predicate;
+import org.telegram.telegrambots.meta.api.objects.Update;
+public class MatchReply implements Predicate<Wrap<Update>> {
     @Override
-    public List<Service> services() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Service service(final String name) {
-        throw new UnsupportedOperationException();
+    public boolean test(Wrap<Update> wrap) {
+        return wrap.src().getMessage().getReplyToMessage() != null;
     }
 }

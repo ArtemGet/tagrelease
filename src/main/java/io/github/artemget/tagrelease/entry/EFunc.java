@@ -22,29 +22,12 @@
  * SOFTWARE.
  */
 
-package io.github.artemget.tagrelease.domain;
+package io.github.artemget.tagrelease.entry;
 
-import io.github.artemget.tagrelease.exception.DomainException;
-import org.cactoos.Scalar;
+import io.github.artemget.entrys.EntryException;
+import org.cactoos.Func;
 
-/**
- * Application's source code in git.
- *
- * @since 0.1.0
- */
-public interface Service {
-    String id();
-    /**
-     * Returns application name.
-     *
-     * @return Name
-     */
-    String name();
-
-    /**
-     * Returns application's tag.
-     *
-     * @return Tag
-     */
-    String tag() throws DomainException;
+public interface EFunc<X, Y> extends Func<X, Y> {
+    @Override
+    Y apply(X x) throws EntryException;
 }

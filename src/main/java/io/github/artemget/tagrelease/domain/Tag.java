@@ -25,20 +25,41 @@
 package io.github.artemget.tagrelease.domain;
 
 import java.util.List;
+import org.cactoos.Text;
+public interface Tag {
+    String repo();
 
-/**
- * Servers.
- *
- * @since 0.1.0
- */
-public final class StandsGitlab implements Stands {
-    @Override
-    public List<Stand> stands() {
-        throw new UnsupportedOperationException();
-    }
+    String name();
 
-    @Override
-    public Stand stand(final String name) {
-        throw new UnsupportedOperationException();
+    String branch();
+
+    String fromCommit();
+
+    String message();
+
+    String created();
+
+    final class Printed implements Text {
+        /**
+         * Tags.
+         */
+        private final List<Tag> tags;
+
+        /**
+         * Main ctor.
+         * @param tags Built
+         */
+        public Printed(final List<Tag> tags) {
+            this.tags = tags;
+        }
+
+        @Override
+        public String asString() {
+            final StringBuilder string = new StringBuilder();
+            for (final Tag tag : this.tags) {
+                string.append(String.format("```%s:%s```\n", tag.repo(), tag.name()));
+            }
+            return string.toString();
+        }
     }
 }

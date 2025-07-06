@@ -1,0 +1,25 @@
+#Telegram bot settings
+bot:
+  #Bot name. Provided by botfather.
+  name: ${BOT_NAME}
+  #Bot token. Provided by botfather.
+  #Example: 1234567890:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  token: ${BOT_TOKEN}
+  #Users that could use bot. Array of userid in format id_1;id_2;id3.
+  #Example: -123;-234;-345
+  admins: ${BOT_ADMINS}
+#Source code management settings
+provider:
+  #SCM auth token to make requests. Must have permission to read all project's repos(tags,pull-requests,commits etc),
+  #create tags and push commits to ci/cd repo.
+  #Example:glpat-xxxxxxxxxxxxxxxxxxxx
+  token: ${PROVIDER_TOKEN}
+  #SCM host, with protocol. Only http:// is supported for now.
+  #Example:http://gitlab.blabla123.dev.ts/
+  host: ${PROVIDER_HOST}
+  #ID of project in which all repos is placed. Int value.
+  #Example: 123
+  project: ${PROJECT_ID}
+  #ID of repo where all stands are placed.
+  #Example: 123
+  release: ${RELEASE_ID}

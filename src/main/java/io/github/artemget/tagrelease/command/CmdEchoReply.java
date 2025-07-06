@@ -22,29 +22,23 @@
  * SOFTWARE.
  */
 
-package io.github.artemget.tagrelease.domain;
+package io.github.artemget.tagrelease.command;
 
-import io.github.artemget.tagrelease.exception.DomainException;
-import org.cactoos.Scalar;
-
-/**
- * Application's source code in git.
- *
- * @since 0.1.0
- */
-public interface Service {
-    String id();
-    /**
-     * Returns application name.
-     *
-     * @return Name
-     */
-    String name();
-
-    /**
-     * Returns application's tag.
-     *
-     * @return Tag
-     */
-    String tag() throws DomainException;
+import io.github.artemget.teleroute.command.Cmd;
+import io.github.artemget.teleroute.command.CmdException;
+import io.github.artemget.teleroute.send.Send;
+import io.github.artemget.teleroute.telegrambots.send.SendMessageWrap;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.bots.AbsSender;
+public class CmdEchoReply implements Cmd<Update, AbsSender> {
+    @Override
+    public Send<AbsSender> execute(Update update) throws CmdException {
+        return new SendMessageWrap<>(
+            new SendMessage(
+                update.getMessage().getChatId().toString(),
+                update.getMessage().getReplyToMessage().getFrom().getId().toString()
+            )
+        );
+    }
 }

@@ -24,8 +24,10 @@
 
 package io.github.artemget.tagrelease.command;
 
-import io.github.artemget.tagrelease.domain.Stand;
-import io.github.artemget.tagrelease.domain.Stands;
+import io.github.artemget.entrys.Entry;
+import io.github.artemget.tagrelease.domain.Service;
+import io.github.artemget.tagrelease.domain.Services;
+import io.github.artemget.tagrelease.domain.ServicesAll;
 import io.github.artemget.tagrelease.exception.DomainException;
 import io.github.artemget.teleroute.command.Cmd;
 import io.github.artemget.teleroute.command.CmdException;
@@ -38,32 +40,35 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 /**
- * Lists available stands and it's services.
- * @since 0.1.0
+ * Bot command.
+ * List all repositories in gitlab and send reply to user message.
+ *
+ * @since 0.0.1
  */
-public final class CmdListStands implements Cmd<Update, AbsSender> {
-    /**
-     * Available stands.
-     */
-    private final Stands stands;
+public final class CmdListServicesAll implements Cmd<Update, AbsSender> {
+    private final Services services;
 
-    /**
-     * Main ctor.
-     * @param stands Available stands.
-     */
-    public CmdListStands(final Stands stands) {
-        this.stands = stands;
+    public CmdListServicesAll(
+        final Entry<String> host,
+        final Entry<String> project,
+        final Entry<String> token
+    ) {
+        this(new ServicesAll(host, project, token));
+    }
+
+    public CmdListServicesAll(final Services services) {
+        this.services = services;
     }
 
     @Override
     public Send<AbsSender> execute(final Update update) throws CmdException {
-        final List<Stand> stands;
+        List<Service> srvs;
         try {
-            stands = this.stands.stands();
+            srvs = this.services.services();
         } catch (final DomainException exception) {
             throw new CmdException(
                 String.format(
-                    "Error list all stands. From user:'%s', userId:'%s' in chat:'%s'",
+                    "Error list all services. From user:'%s', userId:'%s' in chat:'%s'",
                     update.getMessage().getFrom().getUserName(),
                     update.getMessage().getFrom().getId(),
                     update.getMessage().getChatId()
@@ -75,7 +80,7 @@ public final class CmdListStands implements Cmd<Update, AbsSender> {
             update.getMessage().getChatId().toString(),
             String.format(
                 "```\n%s```",
-                stands.stream().map(Stand::name).collect(Collectors.joining("\n"))
+                srvs.stream().map(Service::name).collect(Collectors.joining("\n"))
             )
         );
         message.setReplyToMessageId(update.getMessage().getMessageId());

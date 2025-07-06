@@ -22,58 +22,23 @@
  * SOFTWARE.
  */
 
-package io.github.artemget.tagrelease.domain;
+package io.github.artemget.tagrelease.command;
 
-import io.github.artemget.tagrelease.exception.DomainException;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.cactoos.Text;
-
-/**
- * Servers.
- *
- * @since 0.1.0
- */
-public interface Stands {
-    /**
-     * Returns available servers.
-     *
-     * @return Servers
-     */
-    List<Stand> stands() throws DomainException;
-
-    /**
-     * Returns server by it's name.
-     *
-     * @param name Name
-     * @return Server
-     */
-    Stand stand(String name) throws DomainException;
-
-    /**
-     * Printed servers.
-     *
-     * @since 0.1.0
-     */
-    final class Printed implements Text {
-        /**
-         * Stands.
-         */
-        private final Stands stands;
-
-        /**
-         * Main ctor.
-         * @param stands Stands
-         */
-        public Printed(final Stands stands) {
-            this.stands = stands;
-        }
-
-        @Override
-        public String asString() throws DomainException {
-            return this.stands.stands().stream()
-                .map(st -> new Stand.Printed(st).toString())
-                .collect(Collectors.joining());
-        }
+import io.github.artemget.teleroute.command.Cmd;
+import io.github.artemget.teleroute.command.CmdException;
+import io.github.artemget.teleroute.send.Send;
+import io.github.artemget.teleroute.telegrambots.send.SendMessageWrap;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.bots.AbsSender;
+public class CmdEcho implements Cmd<Update, AbsSender> {
+    @Override
+    public Send<AbsSender> execute(Update update) throws CmdException {
+        return new SendMessageWrap<>(
+            new SendMessage(
+                update.getMessage().getChatId().toString(),
+                update.getMessage().getFrom().getId().toString()
+            )
+        );
     }
 }

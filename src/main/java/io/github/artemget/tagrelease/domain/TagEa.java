@@ -24,35 +24,33 @@
 
 package io.github.artemget.tagrelease.domain;
 
-import io.github.artemget.tagrelease.exception.TagException;
-import org.cactoos.Scalar;
-
-/**
- * Application's source code in gitlab.
- *
- * @since 0.1.0
- */
-@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
-public final class ServiceGitlabEager implements Service {
-    /**
-     * Application name.
-     */
+public final class TagEa implements Tag {
+    private final String repo;
     private final String name;
+    private final String branch;
+    private final String commit;
+    private final String message;
+    private final String created;
 
-    /**
-     * Application tag.
-     */
-    private final String tag;
-
-    /**
-     * Main ctor.
-     *
-     * @param name Of application
-     * @param tag Of application
-     */
-    public ServiceGitlabEager(final String name, final String tag) {
+    public TagEa(
+        final String repo,
+        final String name,
+        final String branch,
+        final String commit,
+        final String message,
+        final String created
+    ) {
+        this.repo = repo;
         this.name = name;
-        this.tag = tag;
+        this.branch = branch;
+        this.commit = commit;
+        this.message = message;
+        this.created = created;
+    }
+
+    @Override
+    public String repo() {
+        return this.repo;
     }
 
     @Override
@@ -61,21 +59,22 @@ public final class ServiceGitlabEager implements Service {
     }
 
     @Override
-    public String tag() {
-        return this.tag;
+    public String branch() {
+        return this.branch;
     }
 
-    // @checkstyle IllegalCatchCheck (50 lines)
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     @Override
-    public Service tagged(final Scalar<String> rule) throws TagException {
-        try {
-            return new ServiceGitlabEager(this.name, rule.value());
-        } catch (final Exception exception) {
-            throw new TagException(
-                String.format("Failed to create tag for service: %s", this.name),
-                exception
-            );
-        }
+    public String fromCommit() {
+        return this.commit;
+    }
+
+    @Override
+    public String message() {
+        return this.message;
+    }
+
+    @Override
+    public String created() {
+        return this.created;
     }
 }
