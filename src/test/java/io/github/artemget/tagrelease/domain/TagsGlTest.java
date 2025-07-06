@@ -38,6 +38,22 @@ class TagsGlTest {
     }
 
     @Test
+    void returnsLastIncrementedWithStarting() {
+        Assertions.assertEquals(
+            "v4.3.1.1",
+            TagsGl.next("v4.3.1.0", "v4.3.1.*")
+        );
+    }
+
+    @Test
+    void returnsLastIncrementedWithVersionAndTrailingText() {
+        Assertions.assertEquals(
+            "v4.3.1.1_bla_bla",
+            TagsGl.next("v4.3.1.0_bla_bla", "v4.3.1.*")
+        );
+    }
+
+    @Test
     void returnsLastIncrementedOverPlaceNumber() {
         Assertions.assertEquals(
             "4.3.1.11",

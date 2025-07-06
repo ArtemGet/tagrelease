@@ -125,6 +125,7 @@ public final class TagsGl implements Tags {
                 exception
             );
         }
+        //TODO: add branch check
         final JsonObject current = response.getJsonObject(0);
         return new TagEa(
             serviceId,
