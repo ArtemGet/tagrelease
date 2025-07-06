@@ -38,10 +38,26 @@ class TagsGlTest {
     }
 
     @Test
+    void returnsLastIncrementedOverPlaceNumber() {
+        Assertions.assertEquals(
+            "4.3.1.11",
+            TagsGl.next("4.3.1.10", "4.3.1.*")
+        );
+    }
+
+    @Test
     void returnsThirdIncremented() {
         Assertions.assertEquals(
             "4.3.2.0",
             TagsGl.next("4.3.1.0", "4.3.*")
+        );
+    }
+
+    @Test
+    void returnsThirdIncrementedOverPlaceNumber() {
+        Assertions.assertEquals(
+            "4.3.11.0",
+            TagsGl.next("4.3.10.0", "4.3.*")
         );
     }
 
@@ -58,6 +74,22 @@ class TagsGlTest {
         Assertions.assertEquals(
             "5.0.0.0",
             TagsGl.next("4.3.1.0", "*")
+        );
+    }
+
+    @Test
+    void returnsFirstIncrementedOver() {
+        Assertions.assertEquals(
+            "10.0.0.0",
+            TagsGl.next("9.3.1.0", "*")
+        );
+    }
+
+    @Test
+    void returnsFirstIncrementedOverPlaceNumber() {
+        Assertions.assertEquals(
+            "11.0.0.0",
+            TagsGl.next("10.3.1.0", "*")
         );
     }
 }

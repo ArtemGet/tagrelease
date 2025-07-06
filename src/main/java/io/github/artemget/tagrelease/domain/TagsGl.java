@@ -138,9 +138,18 @@ public final class TagsGl implements Tags {
     public static String next(final String current, final String prefix) {
         final String trimmed = prefix.replace("*", "");
         final StringBuilder next = new StringBuilder();
-        for (int index = 0; index < current.toCharArray().length; index++) {
+        final int length = current.toCharArray().length;
+        for (int index = 0; index < length; index++) {
             if (trimmed.length() == index) {
-                next.append(Character.getNumericValue(current.charAt(index)) + 1);
+                final StringBuilder digit = new StringBuilder();
+                while (index < length && Character.isDigit(current.charAt(index))) {
+                    digit.append(current.charAt(index));
+                    index++;
+                }
+                next.append(Integer.parseInt(digit.toString()) + 1);
+                if (index < length) {
+                    next.append(current.charAt(index));
+                }
                 continue;
             }
             if (trimmed.length() < index && Character.isDigit(current.charAt(index))) {
