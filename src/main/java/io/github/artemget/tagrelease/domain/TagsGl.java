@@ -34,10 +34,15 @@ import io.github.artemget.tagrelease.entry.EFunc;
 import io.github.artemget.tagrelease.exception.DomainException;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class TagsGl implements Tags {
+    private final Logger log = LoggerFactory.getLogger(TagsGl.class);
     private final EFunc<Tag, JsonArray> tag;
     private final EFunc<Tag, JsonObject> create;
+    private final EFunc<Tag, String> message;
 
     public TagsGl(
         final Entry<String> url,
@@ -70,17 +75,46 @@ public final class TagsGl implements Tags {
                     ).method(Request.POST)
                         .header("Accept", "application/json")
                         .header("PRIVATE-TOKEN", token.value())
-                ).value()
+                ).value(),
+            (tag) -> {
+                final StringBuilder message = new StringBuilder();
+                int page = 1;
+                boolean isFound = false;
+                while (page <= 5 && !isFound) {
+                    for (final JsonValue value : TagsGl.mrs(tag, url.value(), token.value(), String.valueOf(page))) {
+                        final JsonObject mr = value.asJsonObject();
+                        final boolean isSquash = !mr.isNull("squash_commit_sha")
+                            && tag.fromCommit().equals(mr.getString("squash_commit_sha"));
+                        final boolean isMerge = !mr.isNull("merge_commit_sha")
+                            && tag.fromCommit().equals(mr.getString("merge_commit_sha"));
+                        final boolean isMr = !mr.isNull("sha")
+                            && tag.fromCommit().equals(mr.getString("sha"));
+                        if (isMerge && isSquash && isMr) {
+                            isFound = true;
+                            break;
+                        }
+                        message.append(mr.getString("title")).append("\n\n");
+                        page++;
+                    }
+                }
+                return message.toString();
+            }
         );
     }
 
-    public TagsGl(final EFunc<Tag, JsonArray> tag, final EFunc<Tag, JsonObject> create) {
+    public TagsGl(
+        final EFunc<Tag, JsonArray> tag,
+        final EFunc<Tag, JsonObject> create,
+        EFunc<Tag, String> message
+    ) {
         this.tag = tag;
         this.create = create;
+        this.message = message;
     }
 
     @Override
-    public Tag buildNew(final String serviceId, final String branch, final String prefix) throws DomainException {
+    public Tag buildNew(final String serviceId, final String branch, final String prefix) throws
+        DomainException {
         final Tag current = this.current(serviceId, branch, prefix);
         final JsonObject created;
         try {
@@ -90,7 +124,8 @@ public final class TagsGl implements Tags {
                     TagsGl.next(current.name(), prefix),
                     current.branch(),
                     current.fromCommit(),
-                    "" //TODO: fetch all PRs from current tag's commit to HEAD branch commit.
+                    current.message(),
+                    current.created()
                 )
             );
         } catch (final EntryException exception) {
@@ -102,20 +137,37 @@ public final class TagsGl implements Tags {
                 exception
             );
         }
+        final JsonObject commit = created.getJsonObject("commit");
+        String message;
+        try {
+            message = this.message.apply(current);
+        } catch (final EntryException exception) {
+            message = "";
+            log.error(
+                "Failed to fetch merge requests for service:'{}', branch:'{}'. Between tags '{}' - '{}'",
+                serviceId,
+                branch,
+                current.name(),
+                created.getString("name"),
+                exception
+            );
+        }
         return new TagEa(
             serviceId,
             created.getString("name"),
             branch,
-            created.getJsonObject("commit").getString("id"),
-            created.getJsonObject("commit").getString("message")
+            commit.getString("id"),
+            message,
+            commit.getString("created_at")
         );
     }
 
     @Override
-    public Tag current(final String serviceId, final String branch, final String prefix) throws DomainException {
+    public Tag current(final String serviceId, final String branch, final String prefix) throws
+        DomainException {
         final JsonArray response;
         try {
-            response = this.tag.apply(new TagEa(serviceId, prefix, branch, "", ""));
+            response = this.tag.apply(new TagEa(serviceId, prefix, branch, "", "", ""));
         } catch (final EntryException exception) {
             throw new DomainException(
                 String.format(
@@ -127,12 +179,14 @@ public final class TagsGl implements Tags {
         }
         //TODO: add branch check
         final JsonObject current = response.getJsonObject(0);
+        final JsonObject commit = current.getJsonObject("commit");
         return new TagEa(
             serviceId,
             current.getString("name"),
             branch,
-            current.getJsonObject("commit").getString("id"),
-            current.getJsonObject("commit").getString("message")
+            commit.getString("id"),
+            commit.getString("message"),
+            commit.getString("created_at")
         );
     }
 
@@ -160,5 +214,24 @@ public final class TagsGl implements Tags {
             }
         }
         return next.toString();
+    }
+
+    private static JsonArray mrs(final Tag tag, String url, String token, String page) throws
+        EntryException {
+        return new EFetchArr(
+            new JdkRequest(
+                String.format(
+                    "%s/api/v4/projects/%s/merge_requests?state=merged&scope=all&created_after=%s&target_branch=%s&per_page=%s&page=%s",
+                    url,
+                    tag.repo(),
+                    tag.created(),
+                    tag.branch(),
+                    "20",
+                    page
+                )
+            ).method(Request.POST)
+                .header("Accept", "application/json")
+                .header("PRIVATE-TOKEN", token)
+        ).value();
     }
 }
