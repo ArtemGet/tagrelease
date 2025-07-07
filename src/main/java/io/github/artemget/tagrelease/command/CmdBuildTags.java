@@ -26,8 +26,8 @@ package io.github.artemget.tagrelease.command;
 
 import io.github.artemget.entrys.Entry;
 import io.github.artemget.entrys.EntryException;
+import io.github.artemget.entrys.fake.EFake;
 import io.github.artemget.entrys.operation.ESplit;
-import io.github.artemget.entrys.operation.EUnwrap;
 import io.github.artemget.tagrelease.domain.Service;
 import io.github.artemget.tagrelease.domain.Services;
 import io.github.artemget.tagrelease.domain.ServicesAll;
@@ -69,27 +69,18 @@ public class CmdBuildTags implements Cmd<Update, AbsSender> {
     @Override
     public Send<AbsSender> execute(Update update) throws CmdException {
         final List<String> names;
-        final String branch;
-        final String prefix;
         final String[] values = StringUtils.substringsBetween(update.getMessage().getText(), "{", "}");
         try {
-            names = new ESplit(new EUnwrap(values[0]), ",").value();
+            names = new ESplit(new EFake<>(values[0]), ",").value();
         } catch (final EntryException exception) {
-            throw new CmdException("Failed to parse service names for tag build", exception);
+            throw new CmdException("Failed to parse service names for tag fetch", exception);
         }
-        try {
-            prefix = new EUnwrap(values[1]).value();
-        } catch (final EntryException exception) {
-            throw new CmdException("Failed to parse prefix name for tag build", exception);
-        }
-        try {
-            if (values.length >= 3) {
-                branch = new EUnwrap(values[2]).value();
-            } else {
-                branch = "develop";
-            }
-        } catch (final EntryException exception) {
-            throw new CmdException("Failed to parse branch name for tag build", exception);
+        final String prefix = values[1];
+        final String branch;
+        if (values.length >= 3) {
+            branch = values[2];
+        } else {
+            branch = "develop";
         }
         final List<Tag> succeed = new ArrayList<>();
         final List<String> failed = new ArrayList<>();
@@ -114,14 +105,21 @@ public class CmdBuildTags implements Cmd<Update, AbsSender> {
         }
         final SendMessage message = new SendMessage(
             update.getMessage().getChatId().toString(),
-            String.format(
-                "Собраны сервисы:\n%s\nОшибка сборки сервисов:\n%s",
-                new Tag.Printed(succeed).asString(),
-                String.join("\n", failed)
-            )
+            String.format("Собраны сервисы:\n%s", new Tag.Printed(succeed).asString())
+                .concat(CmdBuildTags.checked(failed))
         );
         message.setReplyToMessageId(update.getMessage().getMessageId());
         message.enableMarkdownV2(true);
         return new SendMessageWrap<>(message);
+    }
+
+    private static String checked(List<String> failed) {
+        final String message;
+        if (failed.isEmpty()) {
+            message = "";
+        } else {
+            message = String.format("\nОшибка сборки сервисов:\n%s", String.join("\n", failed));
+        }
+        return message;
     }
 }
