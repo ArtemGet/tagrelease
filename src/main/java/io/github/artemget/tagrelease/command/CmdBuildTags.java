@@ -32,6 +32,7 @@ import io.github.artemget.tagrelease.domain.Service;
 import io.github.artemget.tagrelease.domain.Services;
 import io.github.artemget.tagrelease.domain.ServicesAll;
 import io.github.artemget.tagrelease.domain.Tag;
+import io.github.artemget.tagrelease.domain.TagEa;
 import io.github.artemget.tagrelease.domain.Tags;
 import io.github.artemget.tagrelease.domain.TagsGl;
 import io.github.artemget.tagrelease.exception.DomainException;
@@ -101,7 +102,7 @@ public class CmdBuildTags implements Cmd<Update, AbsSender> {
                 failed.add(name);
                 continue;
             }
-            succeed.add(tag);
+            succeed.add(new TagEa(service.name(), tag.name(), tag.branch(), tag.fromCommit(), tag.message(), tag.created()));
         }
         final SendMessage message = new SendMessage(
             update.getMessage().getChatId().toString(),
@@ -118,7 +119,10 @@ public class CmdBuildTags implements Cmd<Update, AbsSender> {
         if (failed.isEmpty()) {
             message = "";
         } else {
-            message = String.format("\nОшибка сборки сервисов:\n%s", String.join("\n", failed));
+            message = String.format(
+                "\nОшибка поиска тегов по сервисам:\n%s",
+                String.format("```\n%s\n```", String.join("\n", failed))
+            );
         }
         return message;
     }
