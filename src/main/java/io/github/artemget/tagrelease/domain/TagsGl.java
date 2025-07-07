@@ -32,6 +32,8 @@ import io.github.artemget.tagrelease.entry.EFetchArr;
 import io.github.artemget.tagrelease.entry.EFetchObj;
 import io.github.artemget.tagrelease.entry.EFunc;
 import io.github.artemget.tagrelease.exception.DomainException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
@@ -53,7 +55,7 @@ public final class TagsGl implements Tags {
                 new EFetchArr(
                     new JdkRequest(
                         String.format(
-                            "%s/api/v4/projects/%s/repository/tags?search=%%5E%s",
+                            "%s/api/v4/projects/%s/repository/tags?order_by=version&search=%%5E%s",
                             url.value(),
                             tag.repo(),
                             tag.name().replace(".*", "")
@@ -66,11 +68,12 @@ public final class TagsGl implements Tags {
                 new EFetchObj(
                     new JdkRequest(
                         String.format(
-                            "%s/api/v4/projects/%s/repository/tags?ref=%s&tag_name=%s",
+                            "%s/api/v4/projects/%s/repository/tags?ref=%s&tag_name=%s&message=%s",
                             url.value(),
                             tag.repo(),
                             tag.branch(),
-                            tag.name()
+                            tag.name(),
+                            tag.message()
                         )
                     ).method(Request.POST)
                         .header("Accept", "application/json")
@@ -81,7 +84,8 @@ public final class TagsGl implements Tags {
                 int page = 1;
                 boolean isFound = false;
                 while (page <= 5 && !isFound) {
-                    for (final JsonValue value : TagsGl.mrs(tag, url.value(), token.value(), String.valueOf(page))) {
+                    final JsonArray mrs = TagsGl.mrs(tag, url.value(), token.value(), String.valueOf(page));
+                    for (final JsonValue value : mrs) {
                         final JsonObject mr = value.asJsonObject();
                         final boolean isSquash = !mr.isNull("squash_commit_sha")
                             && tag.fromCommit().equals(mr.getString("squash_commit_sha"));
@@ -89,13 +93,19 @@ public final class TagsGl implements Tags {
                             && tag.fromCommit().equals(mr.getString("merge_commit_sha"));
                         final boolean isMr = !mr.isNull("sha")
                             && tag.fromCommit().equals(mr.getString("sha"));
-                        if (isMerge && isSquash && isMr) {
+                        if (isMerge || isSquash || isMr) {
                             isFound = true;
                             break;
                         }
-                        message.append(mr.getString("title")).append("\n\n");
-                        page++;
+                        final String trimmed;
+                        if (mr.getString("title").length() >= 30) {
+                            trimmed = mr.getString("title").substring(0, 30).concat("...");
+                        } else {
+                            trimmed = mr.getString("title");
+                        }
+                        message.append(trimmed).append("\n");
                     }
+                    page++;
                 }
                 return message.toString();
             }
@@ -116,15 +126,41 @@ public final class TagsGl implements Tags {
     public Tag buildNew(final String serviceId, final String branch, final String prefix) throws
         DomainException {
         final Tag current = this.current(serviceId, branch, prefix);
+        final String next = TagsGl.next(current.name(), prefix);
+        String message;
+        try {
+            message = URLEncoder.encode(
+                String.format(
+                    "Данное сообщение было сгенерировано автоматически.\nИзменения '%s' -> '%s':\n%s",
+                    current.name(),
+                    next,
+                    this.message.apply(current)
+                ),
+                StandardCharsets.UTF_8
+            );
+            if (message.length() > 5000) {
+                message = message.substring(0, 4996).concat("\n...");
+            }
+        } catch (final EntryException exception) {
+            message = "";
+            log.error(
+                "Failed to fetch merge requests for service:'{}', branch:'{}'. Between tags '{}' - '{}'",
+                serviceId,
+                branch,
+                current.name(),
+                next,
+                exception
+            );
+        }
         final JsonObject created;
         try {
             created = this.create.apply(
                 new TagEa(
                     current.repo(),
-                    TagsGl.next(current.name(), prefix),
+                    next,
                     current.branch(),
                     current.fromCommit(),
-                    current.message(),
+                    message,
                     current.created()
                 )
             );
@@ -138,20 +174,6 @@ public final class TagsGl implements Tags {
             );
         }
         final JsonObject commit = created.getJsonObject("commit");
-        String message;
-        try {
-            message = this.message.apply(current);
-        } catch (final EntryException exception) {
-            message = "";
-            log.error(
-                "Failed to fetch merge requests for service:'{}', branch:'{}'. Between tags '{}' - '{}'",
-                serviceId,
-                branch,
-                current.name(),
-                created.getString("name"),
-                exception
-            );
-        }
         return new TagEa(
             serviceId,
             created.getString("name"),
@@ -170,14 +192,16 @@ public final class TagsGl implements Tags {
             response = this.tag.apply(new TagEa(serviceId, prefix, branch, "", "", ""));
         } catch (final EntryException exception) {
             throw new DomainException(
-                String.format(
-                    "Failed to fetch tag with prefix:'%s' for service:'%s' from branch:'%s'",
-                    prefix, serviceId, branch
-                ),
+                String.format("Failed to fetch tag with prefix:'%s' for service:'%s'", prefix, serviceId),
                 exception
             );
         }
         //TODO: add branch check
+        if (response.isEmpty()) {
+            throw new DomainException(
+                String.format("Failed to find tag with prefix:'%s' for service:'%s'", prefix, serviceId)
+            );
+        }
         final JsonObject current = response.getJsonObject(0);
         final JsonObject commit = current.getJsonObject("commit");
         return new TagEa(
@@ -216,8 +240,8 @@ public final class TagsGl implements Tags {
         return next.toString();
     }
 
-    private static JsonArray mrs(final Tag tag, String url, String token, String page) throws
-        EntryException {
+    private static JsonArray mrs(final Tag tag, String url, final String token, final String page)
+        throws EntryException {
         return new EFetchArr(
             new JdkRequest(
                 String.format(
@@ -229,7 +253,7 @@ public final class TagsGl implements Tags {
                     "20",
                     page
                 )
-            ).method(Request.POST)
+            ).method(Request.GET)
                 .header("Accept", "application/json")
                 .header("PRIVATE-TOKEN", token)
         ).value();
