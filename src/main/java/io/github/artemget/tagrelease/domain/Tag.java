@@ -57,7 +57,7 @@ public interface Tag {
         public String asString() {
             final StringBuilder string = new StringBuilder();
             for (final Tag tag : this.tags) {
-                string.append(String.format("```\n%s:%s\n```\n", tag.repo(), tag.name()));
+                string.append(String.format("%s:%s\n", tag.repo(), tag.name()));
             }
             return string.toString();
         }

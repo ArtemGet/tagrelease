@@ -36,7 +36,7 @@ import io.github.artemget.tagrelease.command.CmdEchoReply;
 import io.github.artemget.tagrelease.command.CmdListServices;
 import io.github.artemget.tagrelease.command.CmdListServicesAll;
 import io.github.artemget.tagrelease.command.CmdListStands;
-import io.github.artemget.tagrelease.command.CmdListTagsCurrent;
+import io.github.artemget.tagrelease.command.CmdListServicesAllTags;
 import io.github.artemget.tagrelease.domain.Services;
 import io.github.artemget.tagrelease.domain.ServicesAll;
 import io.github.artemget.tagrelease.domain.Stands;
@@ -99,7 +99,7 @@ public class Entrypoint {
                         ),
                         new RouteFork<>(
                             new MatchRegex<>("[Пп]окажи тег \\{([^{}]*)\\}\\s+префикс\\s+\\{([^{}]*)\\}$"),
-                            new CmdListTagsCurrent(host, project, token)
+                            new CmdListServicesAllTags(host, project, token)
                         ),
                         new RouteFork<>(
                             new MatchAny<>(

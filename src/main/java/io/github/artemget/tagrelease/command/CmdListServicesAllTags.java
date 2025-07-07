@@ -25,12 +25,12 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-public class CmdListTagsCurrent implements Cmd<Update, AbsSender> {
-    private final Logger log = LoggerFactory.getLogger(CmdListTagsCurrent.class);
+public class CmdListServicesAllTags implements Cmd<Update, AbsSender> {
+    private final Logger log = LoggerFactory.getLogger(CmdListServicesAllTags.class);
     private final Services services;
     private final Tags tags;
 
-    public CmdListTagsCurrent(
+    public CmdListServicesAllTags(
         final Entry<String> host,
         final Entry<String> project,
         final Entry<String> token
@@ -38,7 +38,7 @@ public class CmdListTagsCurrent implements Cmd<Update, AbsSender> {
         this(new ServicesAll(host, project, token), new TagsGl(host, token));
     }
 
-    public CmdListTagsCurrent(final Services services, final Tags tags) {
+    public CmdListServicesAllTags(final Services services, final Tags tags) {
         this.services = services;
         this.tags = tags;
     }
@@ -82,8 +82,8 @@ public class CmdListTagsCurrent implements Cmd<Update, AbsSender> {
         }
         final SendMessage message = new SendMessage(
             update.getMessage().getChatId().toString(),
-            String.format("Найдены теги:\n%s", new Tag.Printed(succeed).asString())
-                .concat(CmdListTagsCurrent.checked(failed))
+            String.format("Найдены теги:\n```\n%s\n```", new Tag.Printed(succeed).asString())
+                .concat(CmdListServicesAllTags.checked(failed))
         );
         message.setReplyToMessageId(update.getMessage().getMessageId());
         message.enableMarkdownV2(true);
