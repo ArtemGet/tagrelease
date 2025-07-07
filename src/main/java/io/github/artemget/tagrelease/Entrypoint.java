@@ -36,6 +36,7 @@ import io.github.artemget.tagrelease.command.CmdEchoReply;
 import io.github.artemget.tagrelease.command.CmdListServices;
 import io.github.artemget.tagrelease.command.CmdListServicesAll;
 import io.github.artemget.tagrelease.command.CmdListStands;
+import io.github.artemget.tagrelease.command.CmdListTagsCurrent;
 import io.github.artemget.tagrelease.domain.Services;
 import io.github.artemget.tagrelease.domain.ServicesAll;
 import io.github.artemget.tagrelease.domain.Stands;
@@ -76,7 +77,7 @@ public class Entrypoint {
                     new MatchAdmin(new ESplit(new EVal("bot.admins"))),
                     new RouteDfs<>(
                         new RouteFork<>(
-                            new MatchRegex<>("[Э]эхо"),
+                            new MatchRegex<>("[Ээ]хо"),
                             new RouteFork<>(
                                 new MatchReply(),
                                 new CmdEchoReply(),
@@ -96,7 +97,11 @@ public class Entrypoint {
                             new CmdListStands(stands)
                         ),
                         new RouteFork<>(
-                            new MatchRegex<>("[Сс]обери сервисы \\{([^{}]*)\\}\\s+префикс\\s+\\{([^{}]*)\\}$"),
+                            new MatchRegex<>("[Пп]окажи тег \\{([^{}]*)\\}\\s+префикс\\s+\\{([^{}]*)\\}\\s+ветка\\s+\\{([^{}]*)\\}$"),
+                            new CmdListTagsCurrent(host, project, token)
+                        ),
+                        new RouteFork<>(
+                            new MatchRegex<>("[Сс]обери сервисы \\{([^{}]*)\\}\\s+префикс\\s+\\{([^{}]*)\\}\\s+ветка\\s+\\{([^{}]*)\\}$"),
                             new CmdBuildTags(host, project, token)
                         )
 //                        new RouteFork<>(
