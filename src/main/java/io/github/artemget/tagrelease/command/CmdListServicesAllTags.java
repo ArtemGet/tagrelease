@@ -1,27 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2024-2025. Artem Getmanskii
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package io.github.artemget.tagrelease.command;
 
 import io.github.artemget.entrys.Entry;
@@ -49,12 +25,12 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-public class CmdBuildTags implements Cmd<Update, AbsSender> {
-    private final Logger log = LoggerFactory.getLogger(CmdBuildTags.class);
+public class CmdListServicesAllTags implements Cmd<Update, AbsSender> {
+    private final Logger log = LoggerFactory.getLogger(CmdListServicesAllTags.class);
     private final Services services;
     private final Tags tags;
 
-    public CmdBuildTags(
+    public CmdListServicesAllTags(
         final Entry<String> host,
         final Entry<String> project,
         final Entry<String> token
@@ -62,7 +38,7 @@ public class CmdBuildTags implements Cmd<Update, AbsSender> {
         this(new ServicesAll(host, project, token), new TagsGl(host, token));
     }
 
-    public CmdBuildTags(final Services services, final Tags tags) {
+    public CmdListServicesAllTags(final Services services, final Tags tags) {
         this.services = services;
         this.tags = tags;
     }
@@ -96,9 +72,9 @@ public class CmdBuildTags implements Cmd<Update, AbsSender> {
             }
             final Tag tag;
             try {
-                tag = this.tags.buildNew(service.id(), branch, prefix);
+                tag = this.tags.current(service.id(), branch, prefix);
             } catch (final DomainException exception) {
-                log.error("Failed to build tag for service:'{}'", name, exception);
+                log.error("Failed to fetch current tag for service:'{}'", name, exception);
                 failed.add(name);
                 continue;
             }
@@ -106,8 +82,8 @@ public class CmdBuildTags implements Cmd<Update, AbsSender> {
         }
         final SendMessage message = new SendMessage(
             update.getMessage().getChatId().toString(),
-            String.format("Собраны сервисы:\n%s", new Tag.Printed(succeed).asString())
-                .concat(CmdBuildTags.checked(failed))
+            String.format("Найдены теги:\n```\n%s\n```", new Tag.Printed(succeed).asString())
+                .concat(CmdListServicesAllTags.checked(failed))
         );
         message.setReplyToMessageId(update.getMessage().getMessageId());
         message.enableMarkdownV2(true);
