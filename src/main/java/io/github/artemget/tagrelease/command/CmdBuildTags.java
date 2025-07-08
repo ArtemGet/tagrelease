@@ -106,7 +106,7 @@ public class CmdBuildTags implements Cmd<Update, AbsSender> {
         }
         final SendMessage message = new SendMessage(
             update.getMessage().getChatId().toString(),
-            String.format("Собраны сервисы:\n%s", new Tag.Printed(succeed).asString())
+            String.format("Собраны сервисы:\n```\n%s\n```", new Tag.Printed(succeed).asString())
                 .concat(CmdBuildTags.checked(failed))
         );
         message.setReplyToMessageId(update.getMessage().getMessageId());

@@ -33,10 +33,11 @@ import io.github.artemget.tagrelease.bot.BotReg;
 import io.github.artemget.tagrelease.command.CmdBuildTags;
 import io.github.artemget.tagrelease.command.CmdEcho;
 import io.github.artemget.tagrelease.command.CmdEchoReply;
+import io.github.artemget.tagrelease.command.CmdHelp;
 import io.github.artemget.tagrelease.command.CmdListServices;
 import io.github.artemget.tagrelease.command.CmdListServicesAll;
-import io.github.artemget.tagrelease.command.CmdListStands;
 import io.github.artemget.tagrelease.command.CmdListServicesAllTags;
+import io.github.artemget.tagrelease.command.CmdListStands;
 import io.github.artemget.tagrelease.domain.Services;
 import io.github.artemget.tagrelease.domain.ServicesAll;
 import io.github.artemget.tagrelease.domain.Stands;
@@ -77,6 +78,10 @@ public class Entrypoint {
                 new RouteFork<>(
                     new MatchAdmin(new ESplit(new EVal("bot.admins"))),
                     new RouteDfs<>(
+                        new RouteFork<>(
+                            new MatchRegex<>("[Хх]елп"),
+                            new CmdHelp()
+                        ),
                         new RouteFork<>(
                             new MatchRegex<>("[Ээ]хо"),
                             new RouteFork<>(
